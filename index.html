@@ -270,17 +270,56 @@
       <hr class="section-divider">
       <p class="subtle-h">Päikesepaneelide süsteem</p>
       <div class="field">
-        <label>Süsteemi võimsus <span class="val" id="v-pvsize">6 kWp</span></label>
-        <input type="range" id="pvsize" min="1" max="20" step="0.5" value="6">
+        <label>Eeldatav toodang tõelise lõuna suunas <span class="val" id="v-baseyield">950 kWh/kWp/a</span></label>
+        <input type="range" id="baseyield" min="750" max="1150" step="10" value="950">
       </div>
       <div class="field">
-        <label>Investeering paneelidesse <span class="val" id="v-pvcost">900 €/kWp</span></label>
-        <input type="range" id="pvcost" min="500" max="1600" step="10" value="900">
+        <label>Katuse kalle <span class="val" id="v-tilt">35°</span></label>
+        <input type="range" id="tilt" min="10" max="60" step="1" value="35">
+      </div>
+
+      <p class="helptext" style="margin-top:-.3rem;">Blokk A ja Blokk B võivad olla suunatud eri ilmakaarte poole (nt osa katust Lõuna-lääne, osa Ida-põhja suunas) — toodang arvutatakse iga bloki jaoks eraldi, vastavalt suunale.</p>
+
+      <div class="fixed-note" style="background:#eaf6fc;">
+        <span>Blokk A</span>
       </div>
       <div class="field">
-        <label>Eeldatav toodang <span class="val" id="v-yield">950 kWh/kWp/a</span></label>
-        <input type="range" id="yieldperkwp" min="750" max="1150" step="10" value="950">
+        <label>Blokk A võimsus <span class="val" id="v-pvsizeA">11.5 kWp</span></label>
+        <input type="range" id="pvsizeA" min="0" max="20" step="0.5" value="11.5">
       </div>
+      <div class="field">
+        <label>Blokk A suund <span class="val" id="v-azimuthA">225° (Lõuna-lääs) — 92%</span></label>
+        <input type="range" id="azimuthA" min="0" max="359" step="5" value="225">
+      </div>
+      <div class="field">
+        <label>Blokk A hind <span class="val" id="v-pvcostA">900 €/kWp</span></label>
+        <input type="range" id="pvcostA" min="300" max="1600" step="10" value="900">
+      </div>
+
+      <hr class="section-divider">
+      <div class="toggle-row">
+        <span class="lbl">Lisa teine suund (Blokk B)</span>
+        <label class="switch">
+          <input type="checkbox" id="hasBlockB" checked>
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+      <div id="blockBFields">
+        <div class="field">
+          <label>Blokk B võimsus <span class="val" id="v-pvsizeB">6 kWp</span></label>
+          <input type="range" id="pvsizeB" min="0" max="20" step="0.5" value="6">
+        </div>
+        <div class="field">
+          <label>Blokk B suund <span class="val" id="v-azimuthB">45° (Ida-põhi) — 44%</span></label>
+          <input type="range" id="azimuthB" min="0" max="359" step="5" value="45">
+        </div>
+        <div class="field">
+          <label>Blokk B hind <span class="val" id="v-pvcostB">450 €/kWp</span></label>
+          <input type="range" id="pvcostB" min="300" max="1600" step="10" value="450">
+        </div>
+      </div>
+      <p class="helptext">
+        Suuna protsent näitab, kui palju see suund tooteb võrreldes tõelise lõunaga (100%) samal katusekaldel — arvutatud päikese asendi järgi sinu asukohas aasta läbi. Lääne/ida suunad annavad tavaliselt ~85-90%, põhjapoolsed suunad palju vähem.</p>
 
       <hr class="section-divider">
       <div class="toggle-row">
@@ -369,11 +408,11 @@
         Kõik need komponendid (energia, võrgutasu, aktsiis, taastuvenergia tasu, varustuskindluse tasu, tasakaalustamistasu) lisanduvad kokku ja neile arvestatakse <b>käibemaks 24%</b>, kui ostad energiat võrgust. Kui toodad ja tarbid energiat ise, ei maksa sa nendest komponentidest ühtegi ega ka käibemaksu — omatarbimise väärtus on seega kogu see summa, mitte ainult toorenergia hind. Võrku müües saad ainult müügihinna eest tasu, ilma võrgutasu/aktsiisi tagastuseta.
       </p>
       <div class="field">
-        <label>Jääkostu hinnatõus omatarbimise tõttu <span class="val" id="v-priceUplift">15 %</span></label>
-        <input type="range" id="priceUplift" min="0" max="40" step="1" value="15">
+        <label>Lisakohandus jääkostu hinnale <span class="val" id="v-priceUplift">0 %</span></label>
+        <input type="range" id="priceUplift" min="-30" max="40" step="1" value="0">
       </div>
       <p class="helptext">
-        Kui te ostate elektrit kaalutud börsihinnaga, tähendab omatarbimine keskpäeval, et te ei osta enam just neid odavamaid tunde. Ülejäänud (endiselt võrgust ostetava) energia hinnakomponent tõuseb seetõttu üle algse "enne paneele" hinna — see liugur väljendab, kui palju (rakendub ainult energiahinnale, mitte võrgutasule ega riiklikele tasudele, mis on fikseeritud).
+        Ülejäänud (endiselt võrgust ostetava) energia keskmine hind arvutatakse nüüd <b>automaatselt</b> selle põhjal, millistel kellaaegadel su paneelid (Blokk A/B suundade järgi) toodavad — vaata suunaliugurite juurest "hinnategurit". Kui sinu paneelid toodavad valdavalt keskpäeval (odavamad tunnid), tõuseb jääkostu hind rohkem; kui toodad rohkem hommikul/õhtul (kallimad tunnid), tõuseb see vähem või isegi langeb. See liugur on lisakohandus selle automaatse arvutuse peale, kui arvad, et tegelikkuses on efekt tugevam või nõrgem.
       </p>
       <div class="field">
         <label>Elektrihinna aastane kasv <span class="val" id="v-escalation">3 %</span></label>
@@ -468,21 +507,164 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 const ids = ['consumptionDay','consumptionNight','myDayUse','myNightUse',
-  'pvsize','pvcost','yieldperkwp','battsize','battcost','battnightshift',
+  'baseyield','tilt','pvsizeA','azimuthA','pvcostA','pvsizeB','azimuthB','pvcostB',
+  'battsize','battcost','battnightshift',
   'sc-nobatt','sc-batt','energyDay','energyNight','networkDay','networkNight',
   'excise','renewfee','securityfee','balancingfee',
   'sellprice','priceUplift','escalation','maintenance','degradation','discount'];
 const els = {};
 ids.forEach(id => els[id] = document.getElementById(id));
 const hasBatteryEl = document.getElementById('hasBattery');
+const hasBlockBEl = document.getElementById('hasBlockB');
 const sharedMeterEl = document.getElementById('sharedMeter');
 const batteryFields = document.getElementById('batteryFields');
+const blockBFields = document.getElementById('blockBFields');
 const scBattField = document.getElementById('sc-batt-field');
 const sharedMeterFields = document.getElementById('sharedMeterFields');
 const neighborSummary = document.getElementById('neighborSummary');
 
 const fmtEUR0 = new Intl.NumberFormat('et-EE', {style:'currency', currency:'EUR', maximumFractionDigits:0});
 const fmtNum = new Intl.NumberFormat('et-EE');
+
+// --- Orientation physics engine (solar position based, Estonia/Harju county) ---
+const SITE_LAT = 59.30, SITE_LON = 24.75;
+
+function estoniaUtcOffset(year, month, date){
+  let d = new Date(Date.UTC(year,2,31));
+  while(d.getUTCDay()!==0) d.setUTCDate(d.getUTCDate()-1);
+  const dstStart = d;
+  d = new Date(Date.UTC(year,9,31));
+  while(d.getUTCDay()!==0) d.setUTCDate(d.getUTCDate()-1);
+  const dstEnd = d;
+  const cur = new Date(Date.UTC(year,month,date));
+  return (cur>=dstStart && cur<dstEnd) ? 3 : 2;
+}
+function dayOfYear(year,month,date){
+  return Math.round((Date.UTC(year,month,date)-Date.UTC(year,0,1))/86400000)+1;
+}
+function sunPosition(year,month,date,hour){
+  const n = dayOfYear(year,month,date);
+  const utcOffset = estoniaUtcOffset(year,month,date);
+  const stdMeridian = 15*utcOffset;
+  const B = (360*(n-81)/364)*Math.PI/180;
+  const EoT = 9.87*Math.sin(2*B) - 7.53*Math.cos(B) - 1.5*Math.sin(B);
+  const TC = 4*(SITE_LON-stdMeridian) + EoT;
+  const solarTime = (hour+0.5) + TC/60;
+  const H = (15*(solarTime-12))*Math.PI/180;
+  const dec = (23.45*Math.sin((360*(284+n)/365)*Math.PI/180))*Math.PI/180;
+  const latR = SITE_LAT*Math.PI/180;
+  let cosThetaZ = Math.sin(latR)*Math.sin(dec) + Math.cos(latR)*Math.cos(dec)*Math.cos(H);
+  cosThetaZ = Math.max(-1, Math.min(1, cosThetaZ));
+  const thetaZ = Math.acos(cosThetaZ);
+  const elev = 90 - thetaZ*180/Math.PI;
+  if (elev<=0) return {elev, As:null};
+  const sinThetaZ = Math.sin(thetaZ);
+  let As;
+  if (sinThetaZ<1e-6) As=0;
+  else {
+    const sinAs = Math.cos(dec)*Math.sin(H)/sinThetaZ;
+    const cosAs = (cosThetaZ*Math.sin(latR)-Math.sin(dec))/(sinThetaZ*Math.cos(latR));
+    As = Math.atan2(sinAs,cosAs)*180/Math.PI;
+  }
+  return {elev, As};
+}
+function clearskyGhi(elev){
+  if (elev<=0) return 0;
+  const airmass = 1/Math.sin(elev*Math.PI/180);
+  return Math.max(1353*Math.pow(0.7, Math.pow(airmass,0.678))*Math.sin(elev*Math.PI/180), 0);
+}
+function poaFactor(elev, As, panelAsFromSouth, tiltDeg){
+  if (elev<=0 || As===null) return 0;
+  const thetaZ = (90-elev)*Math.PI/180;
+  const beta = tiltDeg*Math.PI/180;
+  let cosTheta = Math.cos(thetaZ)*Math.cos(beta) + Math.sin(thetaZ)*Math.sin(beta)*Math.cos((As-panelAsFromSouth)*Math.PI/180);
+  cosTheta = Math.max(cosTheta,0);
+  const ghi = clearskyGhi(elev);
+  let beamTilt = cosTheta>0 ? ghi*(cosTheta/Math.sin(elev*Math.PI/180)) : 0;
+  beamTilt = Math.min(beamTilt, ghi*3);
+  const diffuse = 0.15*ghi*(1+Math.cos(beta))/2;
+  return beamTilt+diffuse;
+}
+function annualRelativeYield(compassAzimuth, tiltDeg){
+  const panelAs = compassAzimuth-180;
+  let total = 0;
+  const year = 2026;
+  for (let d=0; d<365; d++){
+    const day = new Date(Date.UTC(year,0,1)+d*86400000);
+    const month = day.getUTCMonth(), date = day.getUTCDate();
+    for (let h=0; h<24; h++){
+      const {elev, As} = sunPosition(year, month, date, h);
+      if (elev<=0) continue;
+      total += poaFactor(elev, As, panelAs, tiltDeg);
+    }
+  }
+  return total;
+}
+const orientationCache = {};
+function orientationFactor(compassAzimuth, tiltDeg){
+  const key = Math.round(compassAzimuth)+'_'+Math.round(tiltDeg);
+  if (orientationCache[key]!==undefined) return orientationCache[key];
+  const southKey = '180_'+Math.round(tiltDeg);
+  if (orientationCache[southKey]===undefined){
+    orientationCache[southKey] = annualRelativeYield(180, tiltDeg);
+  }
+  const val = annualRelativeYield(compassAzimuth, tiltDeg);
+  const factor = val / orientationCache[southKey];
+  orientationCache[key] = factor;
+  return factor;
+}
+function compassName(deg){
+  const names = ['Põhi','Kirre','Ida','Kagu','Lõuna','Edel','Lääs','Loode'];
+  const idx = Math.round(((deg%360)+360)%360 / 45) % 8;
+  return names[idx];
+}
+
+// --- Timing-price factor: are this orientation's production hours on average pricier or cheaper
+// than the day-tariff flat average? (captures the "sun from the east = pricier hours than sun from
+// the south" effect, using a stylised typical Nordic/Baltic day-ahead price shape by clock hour). ---
+const PRICE_SHAPE = [0.72,0.70,0.68,0.68,0.72,0.80,0.95,1.15,1.25,1.10,0.95,0.80,
+                     0.68,0.62,0.62,0.68,0.82,1.00,1.20,1.30,1.22,1.05,0.90,0.80];
+function annualTimingWeighted(compassAzimuth, tiltDeg){
+  const panelAs = compassAzimuth-180;
+  let weightedSum=0, weightTotal=0;
+  const year = 2026;
+  for (let d=0; d<365; d++){
+    const day = new Date(Date.UTC(year,0,1)+d*86400000);
+    const month = day.getUTCMonth(), date = day.getUTCDate();
+    for (let h=0; h<24; h++){
+      const {elev, As} = sunPosition(year, month, date, h);
+      if (elev<=0) continue;
+      const prod = poaFactor(elev, As, panelAs, tiltDeg);
+      weightedSum += prod*PRICE_SHAPE[h];
+      weightTotal += prod;
+    }
+  }
+  return weightTotal>0 ? weightedSum/weightTotal : 1;
+}
+function flatDaylightPriceAvg(){
+  let sum=0, count=0;
+  const year = 2026;
+  for (let d=0; d<365; d++){
+    const day = new Date(Date.UTC(year,0,1)+d*86400000);
+    const month = day.getUTCMonth(), date = day.getUTCDate();
+    for (let h=0; h<24; h++){
+      const {elev} = sunPosition(year, month, date, h);
+      if (elev<=0) continue;
+      sum += PRICE_SHAPE[h];
+      count += 1;
+    }
+  }
+  return sum/count;
+}
+const FLAT_PRICE_AVG = flatDaylightPriceAvg(); // reference: a hypothetical panel producing equally across all daylight hours
+const timingCache = {};
+function timingFactor(compassAzimuth, tiltDeg){
+  const key = Math.round(compassAzimuth)+'_'+Math.round(tiltDeg);
+  if (timingCache[key]!==undefined) return timingCache[key];
+  const val = annualTimingWeighted(compassAzimuth, tiltDeg) / FLAT_PRICE_AVG;
+  timingCache[key] = val;
+  return val;
+}
 
 let cashflowChart, balanceChart;
 
@@ -491,9 +673,21 @@ function updateLabels(){
   document.getElementById('v-consumptionNight').textContent = fmtNum.format(+els.consumptionNight.value) + ' kWh/a';
   document.getElementById('v-myDayUse').textContent = fmtNum.format(+els.myDayUse.value) + ' kWh/a';
   document.getElementById('v-myNightUse').textContent = fmtNum.format(+els.myNightUse.value) + ' kWh/a';
-  document.getElementById('v-pvsize').textContent = els.pvsize.value + ' kWp';
-  document.getElementById('v-pvcost').textContent = fmtNum.format(+els.pvcost.value) + ' €/kWp';
-  document.getElementById('v-yield').textContent = els.yieldperkwp.value + ' kWh/kWp/a';
+  document.getElementById('v-baseyield').textContent = els.baseyield.value + ' kWh/kWp/a';
+  document.getElementById('v-tilt').textContent = els.tilt.value + '°';
+  const tiltVal = +els.tilt.value;
+  document.getElementById('v-pvsizeA').textContent = els.pvsizeA.value + ' kWp';
+  document.getElementById('v-pvcostA').textContent = fmtNum.format(+els.pvcostA.value) + ' €/kWp';
+  const azA = +els.azimuthA.value;
+  const factA = orientationFactor(azA, tiltVal);
+  const timeA = timingFactor(azA, tiltVal);
+  document.getElementById('v-azimuthA').textContent = `${azA}° (${compassName(azA)}) — ${Math.round(factA*100)}% toodangut, ${timeA>=1?'+':''}${Math.round((timeA-1)*100)}% hinnategur`;
+  document.getElementById('v-pvsizeB').textContent = els.pvsizeB.value + ' kWp';
+  document.getElementById('v-pvcostB').textContent = fmtNum.format(+els.pvcostB.value) + ' €/kWp';
+  const azB = +els.azimuthB.value;
+  const factB = orientationFactor(azB, tiltVal);
+  const timeB = timingFactor(azB, tiltVal);
+  document.getElementById('v-azimuthB').textContent = `${azB}° (${compassName(azB)}) — ${Math.round(factB*100)}% toodangut, ${timeB>=1?'+':''}${Math.round((timeB-1)*100)}% hinnategur`;
   document.getElementById('v-battsize').textContent = els.battsize.value + ' kWh';
   document.getElementById('v-battcost').textContent = fmtNum.format(+els.battcost.value) + ' €/kWh';
   document.getElementById('v-battnightshift').textContent = els.battnightshift.value + ' %';
@@ -524,9 +718,20 @@ function calculate(){
   const myDayUse = Math.min(+els.myDayUse.value, consumptionDay);
   const myNightUse = Math.min(+els.myNightUse.value, consumptionNight);
 
-  const pvSize = +els.pvsize.value;
-  const pvCostPerKwp = +els.pvcost.value;
-  const specificYield = +els.yieldperkwp.value;
+  const baseYield = +els.baseyield.value;
+  const tiltVal = +els.tilt.value;
+  const pvSizeA = +els.pvsizeA.value;
+  const pvCostA = +els.pvcostA.value;
+  const azimuthA = +els.azimuthA.value;
+  const yieldA = baseYield * orientationFactor(azimuthA, tiltVal);
+  const timingFactorA = timingFactor(azimuthA, tiltVal);
+  const hasBlockB = hasBlockBEl.checked;
+  const pvSizeB = hasBlockB ? +els.pvsizeB.value : 0;
+  const pvCostB = +els.pvcostB.value;
+  const azimuthB = +els.azimuthB.value;
+  const yieldB = baseYield * orientationFactor(azimuthB, tiltVal);
+  const timingFactorB = timingFactor(azimuthB, tiltVal);
+  const pvSize = pvSizeA + pvSizeB;
   const hasBattery = hasBatteryEl.checked;
   const battSize = hasBattery ? +els.battsize.value : 0;
   const battCostPerKwh = +els.battcost.value;
@@ -550,11 +755,12 @@ function calculate(){
 
   batteryFields.style.display = hasBattery ? 'block' : 'none';
   scBattField.style.display = hasBattery ? 'block' : 'none';
+  blockBFields.style.display = hasBlockB ? 'block' : 'none';
   sharedMeterFields.style.display = shared ? 'block' : 'none';
   neighborSummary.style.display = shared ? 'grid' : 'none';
 
   const selfConsumptionShare = hasBattery ? scBatt : scNoBatt;
-  const totalInvestment = pvSize * pvCostPerKwp + battSize * battCostPerKwh;
+  const totalInvestment = pvSizeA * pvCostA + pvSizeB * pvCostB + battSize * battCostPerKwh;
 
   const years = 25;
   let cumulative = 0;
@@ -564,13 +770,20 @@ function calculate(){
   let paybackYear = null;
 
   let year1DaySelfConsumed = 0, year1NightShifted = 0, year1Exported = 0, year1Bought = 0;
+  let year1UpliftedDayPrice = 0;
   let year1Savings = 0;
 
   for (let y = 1; y <= years; y++){
-    const production = pvSize * specificYield * Math.pow(1 - degradation, y - 1);
+    const degFactor = Math.pow(1 - degradation, y - 1);
+    const prodA_y = pvSizeA * yieldA * degFactor;
+    const prodB_y = pvSizeB * yieldB * degFactor;
+    const production = prodA_y + prodB_y;
 
     let daySelfConsumed = production * selfConsumptionShare;
     daySelfConsumed = Math.min(daySelfConsumed, consumptionDay);
+    const shareA = production > 0 ? prodA_y / production : 0;
+    const selfConsumedA = daySelfConsumed * shareA;
+    const selfConsumedB = daySelfConsumed - selfConsumedA;
 
     let remainingProd = Math.max(production - daySelfConsumed, 0);
     let nightShifted = remainingProd * battNightShift;
@@ -586,7 +799,18 @@ function calculate(){
     const buyPriceDay = (energyDay_y + nonEnergyDay_y) * (1 + VAT);
     const buyPriceNight = buyPriceNight0 * escFactor;
     const sellPrice = sellPrice0 * escFactor;
-    const upliftedDayPrice = (energyDay_y * (1 + priceUplift) + nonEnergyDay_y) * (1 + VAT);
+
+    // Timing-aware residual price: self-consumption doesn't remove a "random" set of hours —
+    // it removes hours weighted by each block's own orientation-timing factor. By conservation,
+    // whatever's left over (dayBought) must average out to a correspondingly different price.
+    const blendedTimingFactor = daySelfConsumed > 0
+      ? (selfConsumedA * timingFactorA + selfConsumedB * timingFactorB) / daySelfConsumed
+      : 1;
+    const flatEnergyCostTotal = energyDay_y * consumptionDay;
+    const selfConsumedEnergyCost = energyDay_y * blendedTimingFactor * daySelfConsumed;
+    const residualEnergyCost = flatEnergyCostTotal - selfConsumedEnergyCost;
+    const residualEnergyPrice = dayBought > 0 ? residualEnergyCost / dayBought : energyDay_y;
+    const upliftedDayPrice = (residualEnergyPrice * (1 + priceUplift) + nonEnergyDay_y) * (1 + VAT);
 
     const daySavings = consumptionDay * buyPriceDay - dayBought * upliftedDayPrice;
     const nightSavings = nightShifted * buyPriceNight;
@@ -613,19 +837,19 @@ function calculate(){
       year1Exported = exported;
       year1Bought = dayBought + nightBought;
       year1Savings = savings;
+      year1UpliftedDayPrice = upliftedDayPrice;
     }
   }
 
   const npv = cumulativeDiscounted;
   const neighborDayUse = Math.max(consumptionDay - myDayUse, 0);
   const neighborNightUse = Math.max(consumptionNight - myNightUse, 0);
-  const upliftedDayPrice1 = (energyDay0 * (1 + priceUplift) + networkDay + flatFees) * (1 + VAT);
   const neighborPaymentFrozen = neighborDayUse * buyPriceDay0 + neighborNightUse * buyPriceNight0;
-  const neighborPaymentFloating = neighborDayUse * upliftedDayPrice1 + neighborNightUse * buyPriceNight0;
+  const neighborPaymentFloating = neighborDayUse * year1UpliftedDayPrice + neighborNightUse * buyPriceNight0;
   const neighborDiff = neighborPaymentFloating - neighborPaymentFrozen;
 
   document.getElementById('m-investment').textContent = fmtEUR0.format(totalInvestment);
-  document.getElementById('m-investment-sub').textContent = `${pvSize} kWp paneelid` + (hasBattery ? ` + ${battSize} kWh aku` : ' (aku kaasamata)') + ', 100% sinu oma';
+  document.getElementById('m-investment-sub').textContent = `${pvSize.toFixed(1)} kWp paneelid (${pvSizeA}+${hasBlockB?pvSizeB:0} kWp)` + (hasBattery ? ` + ${battSize} kWh aku` : ' (aku kaasamata)') + ', 100% sinu oma';
   document.getElementById('m-savings1').textContent = fmtEUR0.format(Math.max(year1Savings,0));
   document.getElementById('m-payback').textContent = paybackYear ? paybackYear.toFixed(1) + ' aastat' : '> 25 aastat';
   document.getElementById('m-payback').className = 'value ' + (paybackYear && paybackYear <= 15 ? 'good' : (paybackYear ? '' : 'warn'));
@@ -736,6 +960,7 @@ function drawBalanceChart(daySelfConsumed, nightShifted, exported, bought){
 
 ids.forEach(id => els[id].addEventListener('input', calculate));
 hasBatteryEl.addEventListener('change', calculate);
+hasBlockBEl.addEventListener('change', calculate);
 sharedMeterEl.addEventListener('change', calculate);
 
 calculate();
