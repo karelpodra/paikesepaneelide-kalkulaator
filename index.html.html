@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Päikesepaneelide ja aku tasuvuskalkulaator</title>
+<style>
+  :root{
+    --elenger-blue:#009DE0;
+    --elenger-blue-dark:#04466B;
+    --elenger-blue-darker:#042C40;
+    --ink:#0f2733;
+    --ink-soft:#4c626c;
+    --line:#dbe6ea;
+    --bg:#f4f8fa;
+    --card:#ffffff;
+    --good:#1D9E75;
+    --warn:#D85A30;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    padding:0 0 3rem 0;
+  }
+  header{
+    background:linear-gradient(135deg,var(--elenger-blue-darker),var(--elenger-blue-dark) 60%,var(--elenger-blue));
+    color:#fff;
+    padding:2.2rem 2rem 2rem;
+  }
+  header h1{
+    margin:0 0 .35rem;
+    font-size:1.55rem;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:0;
+    color:#cfe9f7;
+    font-size:.95rem;
+    max-width:680px;
+    line-height:1.5;
+  }
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 2rem;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:minmax(320px,400px) 1fr;
+    gap:1.5rem;
+    margin-top:-1.2rem;
+  }
+  @media (max-width:880px){
+    .grid{grid-template-columns:1fr;}
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:1.4rem 1.5rem;
+    box-shadow:0 1px 2px rgba(10,40,60,.04);
+  }
+  .card h2{
+    font-size:1.02rem;
+    margin:0 0 1rem;
+    color:var(--elenger-blue-dark);
+    font-weight:600;
+  }
+  .field{margin-bottom:1.1rem;}
+  .field label{
+    display:flex;
+    justify-content:space-between;
+    font-size:.85rem;
+    color:var(--ink-soft);
+    margin-bottom:.35rem;
+  }
+  .field label span.val{
+    color:var(--elenger-blue-dark);
+    font-weight:600;
+  }
+  input[type=range]{
+    width:100%;
+    accent-color:var(--elenger-blue);
+    height:6px;
+  }
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
+  .section-divider{
+    border:none;
+    border-top:1px solid var(--line);
+    margin:1.3rem 0;
+  }
+  .subtle-h{
+    font-size:.72rem;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:#8ea2ab;
+    margin:0 0 .8rem;
+    font-weight:600;
+  }
+  .helptext{
+    font-size:.78rem;
+    color:var(--ink-soft);
+    line-height:1.5;
+    margin:.2rem 0 1rem;
+  }
+  .fixed-note{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#f0f6f8;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:.6rem .8rem;
+    font-size:.82rem;
+    color:var(--ink-soft);
+    margin-bottom:1rem;
+  }
+  .fixed-note b{color:var(--elenger-blue-dark);}
+  .metrics{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:.9rem;
+    margin-bottom:1.4rem;
+  }
+  @media (max-width:720px){
+    .metrics{grid-template-columns:repeat(2,1fr);}
+  }
+  .metric{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:1.1rem 1.1rem;
+  }
+  .metric .label{
+    font-size:.78rem;
+    color:var(--ink-soft);
+    margin-bottom:.3rem;
+  }
+  .metric .value{
+    font-size:1.4rem;
+    font-weight:600;
+    color:var(--elenger-blue-dark);
+    line-height:1.15;
+  }
+  .metric .value.good{color:var(--good);}
+  .metric .value.warn{color:var(--warn);}
+  .metric .sub{
+    font-size:.72rem;
+    color:#8ea2ab;
+    margin-top:.25rem;
+  }
+  .metrics-secondary{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:.9rem;
+    margin-bottom:1.4rem;
+  }
+  @media (max-width:720px){
+    .metrics-secondary{grid-template-columns:1fr;}
+  }
+  .metric-sm{
+    background:#f0f6f8;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:.85rem 1rem;
+  }
+  .metric-sm .label{font-size:.74rem;color:var(--ink-soft);margin-bottom:.2rem;}
+  .metric-sm .value{font-size:1.1rem;font-weight:600;color:var(--elenger-blue-dark);}
+  .chart-card canvas{max-height:340px;}
+  .breakdown{
+    display:flex;
+    gap:1.2rem;
+    margin-top:1rem;
+    flex-wrap:wrap;
+  }
+  .legend-item{
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    font-size:.8rem;
+    color:var(--ink-soft);
+  }
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block;flex-shrink:0;}
+  .note{
+    font-size:.78rem;
+    color:#8ea2ab;
+    line-height:1.6;
+    margin-top:1.2rem;
+    padding-top:1rem;
+    border-top:1px solid var(--line);
+  }
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:.9rem;
+  }
+  .toggle-row .lbl{font-size:.88rem;color:var(--ink);font-weight:500;}
+  .switch{
+    position:relative;width:42px;height:24px;flex-shrink:0;
+  }
+  .switch input{opacity:0;width:0;height:0;}
+  .slider-toggle{
+    position:absolute;cursor:pointer;inset:0;
+    background:#cfd9dd;border-radius:24px;transition:.15s;
+  }
+  .slider-toggle:before{
+    content:"";position:absolute;height:18px;width:18px;left:3px;bottom:3px;
+    background:white;border-radius:50%;transition:.15s;
+  }
+  input:checked + .slider-toggle{background:var(--elenger-blue);}
+  input:checked + .slider-toggle:before{transform:translateX(18px);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Päikesepaneelide ja aku tasuvuskalkulaator</h1>
+    <p>Hinda oma eramaja (paarismaja) päikeseelektrijaama ja kodusalve investeeringu tasuvust — koos päevase/öise tariifi ja naabriga jagatud arvesti loogikaga. Muuda alloleval eeldusi enda olukorra järgi — tulemused uuenevad automaatselt.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+
+    <div class="card">
+      <h2>Sisendandmed</h2>
+
+      <p class="subtle-h">Ühine tarbimine (mõlema leibkonna peale, sama arvesti taga, kWh aastas)</p>
+      <div class="field">
+        <label>Ühine päevane tarbimine <span class="val" id="v-consumptionDay">2500 kWh/a</span></label>
+        <input type="range" id="consumptionDay" min="500" max="10000" step="100" value="2500">
+      </div>
+      <div class="field">
+        <label>Ühine öine tarbimine <span class="val" id="v-consumptionNight">12000 kWh/a</span></label>
+        <input type="range" id="consumptionNight" min="500" max="15000" step="100" value="12000">
+      </div>
+
+      <hr class="section-divider">
+      <div class="toggle-row">
+        <span class="lbl">Jagan elektriarvestit naabriga</span>
+        <label class="switch">
+          <input type="checkbox" id="sharedMeter" checked>
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+      <div id="sharedMeterFields">
+        <div class="fixed-note">
+          <span>Investeeringu kannad <b>sina 100%</b> ulatuses</span>
+          <span>naaber ei investeeri</span>
+        </div>
+        <div class="field">
+          <label>Sinu enda tarbimine päeval <span class="val" id="v-myDayUse">1250 kWh/a</span></label>
+          <input type="range" id="myDayUse" min="0" max="10000" step="100" value="1250">
+        </div>
+        <div class="field">
+          <label>Sinu enda tarbimine öösel <span class="val" id="v-myNightUse">1250 kWh/a</span></label>
+          <input type="range" id="myNightUse" min="0" max="15000" step="100" value="1250">
+        </div>
+        <p class="helptext">
+          Teie kokkuleppe kohaselt jagate elektriarvet edaspidi <b>samadel põhimõtetel nagu senini</b> — igaüks tasub oma tarbimise eest keskmise päeva- ja öötariifi alusel. Kuna see arvestuspõhimõte ei sõltu päikesetootmisest, ei muutu naabri makse päikesepaneelide paigaldamisel. Sina aga saad kolmekordset kasu: 1) toodad ise osa oma tarbitavast energiast, 2) säästad võrguteenustasudelt omatarbitud energia pealt, ning 3) kui hetkehind on odav ja päike paistab, laed akut ja müüd/tarbid seda energiat hiljem keskmise tariifi alusel — kogu see vahe jääb sulle, kuna naaber maksab jätkuvalt fikseeritud põhimõttel. Sisesta enda tarbimine ülal ainult naabri makse näitamiseks — see ei mõjuta sinu tasuvusarvutust.
+        </p>
+      </div>
+
+      <hr class="section-divider">
+      <p class="subtle-h">Päikesepaneelide süsteem</p>
+      <div class="field">
+        <label>Süsteemi võimsus <span class="val" id="v-pvsize">6 kWp</span></label>
+        <input type="range" id="pvsize" min="1" max="20" step="0.5" value="6">
+      </div>
+      <div class="field">
+        <label>Investeering paneelidesse <span class="val" id="v-pvcost">900 €/kWp</span></label>
+        <input type="range" id="pvcost" min="500" max="1600" step="10" value="900">
+      </div>
+      <div class="field">
+        <label>Eeldatav toodang <span class="val" id="v-yield">950 kWh/kWp/a</span></label>
+        <input type="range" id="yieldperkwp" min="750" max="1150" step="10" value="950">
+      </div>
+
+      <hr class="section-divider">
+      <div class="toggle-row">
+        <span class="lbl">Lisa aku arvutusse</span>
+        <label class="switch">
+          <input type="checkbox" id="hasBattery" checked>
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+      <div id="batteryFields">
+        <div class="field">
+          <label>Aku maht <span class="val" id="v-battsize">7 kWh</span></label>
+          <input type="range" id="battsize" min="1" max="20" step="0.5" value="7">
+        </div>
+        <div class="field">
+          <label>Aku maksumus <span class="val" id="v-battcost">650 €/kWh</span></label>
+          <input type="range" id="battcost" min="300" max="1200" step="10" value="650">
+        </div>
+        <div class="field">
+          <label>Aku poolt öösse nihutatud osa <span class="val" id="v-battnightshift">30 %</span></label>
+          <input type="range" id="battnightshift" min="0" max="70" step="5" value="30">
+        </div>
+      </div>
+
+      <hr class="section-divider">
+      <p class="subtle-h">Omatarbimine (päevasest toodangust)</p>
+      <div class="field">
+        <label>Omatarbimine ilma akuta <span class="val" id="v-sc-nobatt">30 %</span></label>
+        <input type="range" id="sc-nobatt" min="10" max="60" step="1" value="30">
+      </div>
+      <div class="field" id="sc-batt-field">
+        <label>Omatarbimine akuga <span class="val" id="v-sc-batt">65 %</span></label>
+        <input type="range" id="sc-batt" min="30" max="95" step="1" value="65">
+      </div>
+
+      <hr class="section-divider">
+      <p class="subtle-h">Elektri hinnad ja kulud — energia ja võrgutasu</p>
+      <div class="row2">
+        <div class="field">
+          <label>Energia hind, päev <span class="val" id="v-energyDay">0.10 €/kWh</span></label>
+          <input type="range" id="energyDay" min="0.02" max="0.30" step="0.01" value="0.10">
+        </div>
+        <div class="field">
+          <label>Energia hind, öö <span class="val" id="v-energyNight">0.05 €/kWh</span></label>
+          <input type="range" id="energyNight" min="0.01" max="0.20" step="0.01" value="0.05">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Võrgutasu, päev <span class="val" id="v-networkDay">0.037 €/kWh</span></label>
+          <input type="range" id="networkDay" min="0.01" max="0.08" step="0.001" value="0.037">
+        </div>
+        <div class="field">
+          <label>Võrgutasu, öö <span class="val" id="v-networkNight">0.021 €/kWh</span></label>
+          <input type="range" id="networkNight" min="0.005" max="0.05" step="0.001" value="0.021">
+        </div>
+      </div>
+      <div class="field">
+        <label>Müügihind võrku (ülejääk) <span class="val" id="v-sellprice">0.06 €/kWh</span></label>
+        <input type="range" id="sellprice" min="0.02" max="0.20" step="0.01" value="0.06">
+      </div>
+
+      <hr class="section-divider">
+      <p class="subtle-h">Riiklikud tasud (kWh kohta, ei sõltu kellaajast)</p>
+      <div class="row2">
+        <div class="field">
+          <label>Elektriaktsiis <span class="val" id="v-excise">0.0021 €/kWh</span></label>
+          <input type="range" id="excise" min="0" max="0.01" step="0.0001" value="0.0021">
+        </div>
+        <div class="field">
+          <label>Taastuvenergia tasu <span class="val" id="v-renewfee">0.0084 €/kWh</span></label>
+          <input type="range" id="renewfee" min="0" max="0.02" step="0.0001" value="0.0084">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Varustuskindluse tasu <span class="val" id="v-securityfee">0.0076 €/kWh</span></label>
+          <input type="range" id="securityfee" min="0" max="0.02" step="0.0001" value="0.0076">
+        </div>
+        <div class="field">
+          <label>Tasakaalustamise tasu <span class="val" id="v-balancingfee">0.0037 €/kWh</span></label>
+          <input type="range" id="balancingfee" min="0" max="0.01" step="0.0001" value="0.0037">
+        </div>
+      </div>
+      <p class="helptext">
+        Kõik need komponendid (energia, võrgutasu, aktsiis, taastuvenergia tasu, varustuskindluse tasu, tasakaalustamistasu) lisanduvad kokku ja neile arvestatakse <b>käibemaks 24%</b>, kui ostad energiat võrgust. Kui toodad ja tarbid energiat ise, ei maksa sa nendest komponentidest ühtegi ega ka käibemaksu — omatarbimise väärtus on seega kogu see summa, mitte ainult toorenergia hind. Võrku müües saad ainult müügihinna eest tasu, ilma võrgutasu/aktsiisi tagastuseta.
+      </p>
+      <div class="field">
+        <label>Jääkostu hinnatõus omatarbimise tõttu <span class="val" id="v-priceUplift">15 %</span></label>
+        <input type="range" id="priceUplift" min="0" max="40" step="1" value="15">
+      </div>
+      <p class="helptext">
+        Kui te ostate elektrit kaalutud börsihinnaga, tähendab omatarbimine keskpäeval, et te ei osta enam just neid odavamaid tunde. Ülejäänud (endiselt võrgust ostetava) energia hinnakomponent tõuseb seetõttu üle algse "enne paneele" hinna — see liugur väljendab, kui palju (rakendub ainult energiahinnale, mitte võrgutasule ega riiklikele tasudele, mis on fikseeritud).
+      </p>
+      <div class="field">
+        <label>Elektrihinna aastane kasv <span class="val" id="v-escalation">3 %</span></label>
+        <input type="range" id="escalation" min="0" max="8" step="0.5" value="3">
+      </div>
+      <div class="field">
+        <label>Hooldus- ja kindlustuskulu <span class="val" id="v-maintenance">60 €/a</span></label>
+        <input type="range" id="maintenance" min="0" max="300" step="10" value="60">
+      </div>
+
+      <hr class="section-divider">
+      <p class="subtle-h">Muud eeldused</p>
+      <div class="row2">
+        <div class="field">
+          <label>Süsteemi vananemine <span class="val" id="v-degradation">0.5 %/a</span></label>
+          <input type="range" id="degradation" min="0" max="1.5" step="0.1" value="0.5">
+        </div>
+        <div class="field">
+          <label>Diskontomäär (NPV) <span class="val" id="v-discount">4 %</span></label>
+          <input type="range" id="discount" min="0" max="10" step="0.5" value="4">
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="label">Investeeringu suurus</div>
+          <div class="value" id="m-investment">–</div>
+          <div class="sub" id="m-investment-sub">paneelid + aku, 100% sinu oma</div>
+        </div>
+        <div class="metric">
+          <div class="label">Sinu sääst 1. aastal</div>
+          <div class="value good" id="m-savings1">–</div>
+          <div class="sub">terve süsteemi loodud kasu, sest naabri makse ei muutu</div>
+        </div>
+        <div class="metric">
+          <div class="label">Tasuvusaeg</div>
+          <div class="value" id="m-payback">–</div>
+          <div class="sub">investeering vs kumulatiivne sääst</div>
+        </div>
+        <div class="metric">
+          <div class="label">Nüüdispuhasväärtus (25a)</div>
+          <div class="value" id="m-npv">–</div>
+          <div class="sub" id="m-npv-sub">diskonteeritud rahavoog</div>
+        </div>
+      </div>
+
+      <div class="metrics-secondary" id="neighborSummary" style="grid-template-columns:repeat(3,1fr);">
+        <div class="metric-sm">
+          <div class="label">Naabri makse 1. aastal — fikseeritud (eelnev) hinnaga</div>
+          <div class="value" id="m-neighbor-frozen">–</div>
+        </div>
+        <div class="metric-sm">
+          <div class="label">Naabri makse 1. aastal — tõusnud (tegelik) hinnaga</div>
+          <div class="value" id="m-neighbor-floating">–</div>
+        </div>
+        <div class="metric-sm">
+          <div class="label">Vahe naabri jaoks aastas</div>
+          <div class="value" id="m-neighbor-diff">–</div>
+        </div>
+      </div>
+
+      <div class="card chart-card">
+        <h2>Kumulatiivne rahavoog 25 aasta jooksul</h2>
+        <div style="position:relative;height:320px;">
+          <canvas id="cashflowChart" role="img" aria-label="Joonis näitab kumulatiivset rahavoogu aastate lõikes, sh punkti, kus investeering tasub end ära"></canvas>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1.2rem;">
+        <h2>1. aasta elektribilanss (ühine)</h2>
+        <div style="position:relative;height:230px;">
+          <canvas id="balanceChart" role="img" aria-label="Tulpdiagramm näitab esimese aasta ühise toodangu jagunemist päevase omatarbimise, aku kaudu öösse nihutatud energia, võrku müügi ja võrgust ostu vahel"></canvas>
+        </div>
+        <div class="breakdown">
+          <span class="legend-item"><span class="dot" style="background:#009DE0"></span>Omatarbitud päeval</span>
+          <span class="legend-item"><span class="dot" style="background:#7F77DD"></span>Aku kaudu öösse nihutatud</span>
+          <span class="legend-item"><span class="dot" style="background:#1D9E75"></span>Võrku müüdud</span>
+          <span class="legend-item"><span class="dot" style="background:#D85A30"></span>Endiselt võrgust ostetud</span>
+        </div>
+      </div>
+
+      <p class="note">
+        See on lihtsustatud hindamismudel, mille eesmärk on anda esialgne suunis, mitte täpne pakkumus. Mudel eeldab, et kogu päikesetoodang langeb päevase tariifi perioodi sisse ning et aku suudab osa päevasest ülejäägist nihutada öötariifi ajale. Kui teie leping arvestab kaalutud börsihinda, siis omatarbimine eemaldab odavaimad (keskpäevased) tunnid teie ostupildist, mistõttu ülejäänud ostetud energia keskmine hind tõuseb — seda mõju kirjeldab "jääkostu hinnatõus" liugur. See mõjutab kahte asja korraga: sinu tegelikku säästu (mudel arvestab seda juba maha) ning võimalikku naabri makset, kui tema arve arvutatakse sama tõusnud keskmise hinnaga (vaata kõrvutist "fikseeritud" vs "tõusnud" hinna stsenaariumit). Kumba hinda naabri arves kasutada, tuleb naabriga kirjalikult kokku leppida. Suurema täpsuse jaoks küsi pakkumust ja tarbimisandmete analüüsi paigaldajalt või elektrimüüjalt.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const ids = ['consumptionDay','consumptionNight','myDayUse','myNightUse',
+  'pvsize','pvcost','yieldperkwp','battsize','battcost','battnightshift',
+  'sc-nobatt','sc-batt','energyDay','energyNight','networkDay','networkNight',
+  'excise','renewfee','securityfee','balancingfee',
+  'sellprice','priceUplift','escalation','maintenance','degradation','discount'];
+const els = {};
+ids.forEach(id => els[id] = document.getElementById(id));
+const hasBatteryEl = document.getElementById('hasBattery');
+const sharedMeterEl = document.getElementById('sharedMeter');
+const batteryFields = document.getElementById('batteryFields');
+const scBattField = document.getElementById('sc-batt-field');
+const sharedMeterFields = document.getElementById('sharedMeterFields');
+const neighborSummary = document.getElementById('neighborSummary');
+
+const fmtEUR0 = new Intl.NumberFormat('et-EE', {style:'currency', currency:'EUR', maximumFractionDigits:0});
+const fmtNum = new Intl.NumberFormat('et-EE');
+
+let cashflowChart, balanceChart;
+
+function updateLabels(){
+  document.getElementById('v-consumptionDay').textContent = fmtNum.format(+els.consumptionDay.value) + ' kWh/a';
+  document.getElementById('v-consumptionNight').textContent = fmtNum.format(+els.consumptionNight.value) + ' kWh/a';
+  document.getElementById('v-myDayUse').textContent = fmtNum.format(+els.myDayUse.value) + ' kWh/a';
+  document.getElementById('v-myNightUse').textContent = fmtNum.format(+els.myNightUse.value) + ' kWh/a';
+  document.getElementById('v-pvsize').textContent = els.pvsize.value + ' kWp';
+  document.getElementById('v-pvcost').textContent = fmtNum.format(+els.pvcost.value) + ' €/kWp';
+  document.getElementById('v-yield').textContent = els.yieldperkwp.value + ' kWh/kWp/a';
+  document.getElementById('v-battsize').textContent = els.battsize.value + ' kWh';
+  document.getElementById('v-battcost').textContent = fmtNum.format(+els.battcost.value) + ' €/kWh';
+  document.getElementById('v-battnightshift').textContent = els.battnightshift.value + ' %';
+  document.getElementById('v-sc-nobatt').textContent = els['sc-nobatt'].value + ' %';
+  document.getElementById('v-sc-batt').textContent = els['sc-batt'].value + ' %';
+  document.getElementById('v-energyDay').textContent = (+els.energyDay.value).toFixed(2) + ' €/kWh';
+  document.getElementById('v-energyNight').textContent = (+els.energyNight.value).toFixed(2) + ' €/kWh';
+  document.getElementById('v-networkDay').textContent = (+els.networkDay.value).toFixed(3) + ' €/kWh';
+  document.getElementById('v-networkNight').textContent = (+els.networkNight.value).toFixed(3) + ' €/kWh';
+  document.getElementById('v-excise').textContent = (+els.excise.value).toFixed(4) + ' €/kWh';
+  document.getElementById('v-renewfee').textContent = (+els.renewfee.value).toFixed(4) + ' €/kWh';
+  document.getElementById('v-securityfee').textContent = (+els.securityfee.value).toFixed(4) + ' €/kWh';
+  document.getElementById('v-balancingfee').textContent = (+els.balancingfee.value).toFixed(4) + ' €/kWh';
+  document.getElementById('v-sellprice').textContent = (+els.sellprice.value).toFixed(2) + ' €/kWh';
+  document.getElementById('v-priceUplift').textContent = els.priceUplift.value + ' %';
+  document.getElementById('v-escalation').textContent = els.escalation.value + ' %';
+  document.getElementById('v-maintenance').textContent = fmtNum.format(+els.maintenance.value) + ' €/a';
+  document.getElementById('v-degradation').textContent = els.degradation.value + ' %/a';
+  document.getElementById('v-discount').textContent = els.discount.value + ' %';
+}
+
+function calculate(){
+  updateLabels();
+
+  const consumptionDay = +els.consumptionDay.value;
+  const consumptionNight = +els.consumptionNight.value;
+  const shared = sharedMeterEl.checked;
+  const myDayUse = Math.min(+els.myDayUse.value, consumptionDay);
+  const myNightUse = Math.min(+els.myNightUse.value, consumptionNight);
+
+  const pvSize = +els.pvsize.value;
+  const pvCostPerKwp = +els.pvcost.value;
+  const specificYield = +els.yieldperkwp.value;
+  const hasBattery = hasBatteryEl.checked;
+  const battSize = hasBattery ? +els.battsize.value : 0;
+  const battCostPerKwh = +els.battcost.value;
+  const battNightShift = hasBattery ? (+els.battnightshift.value / 100) : 0;
+  const scNoBatt = +els['sc-nobatt'].value / 100;
+  const scBatt = +els['sc-batt'].value / 100;
+  const energyDay0 = +els.energyDay.value;
+  const energyNight0 = +els.energyNight.value;
+  const networkDay = +els.networkDay.value;
+  const networkNight = +els.networkNight.value;
+  const flatFees = (+els.excise.value) + (+els.renewfee.value) + (+els.securityfee.value) + (+els.balancingfee.value);
+  const VAT = 0.24;
+  const buyPriceDay0 = (energyDay0 + networkDay + flatFees) * (1 + VAT);
+  const buyPriceNight0 = (energyNight0 + networkNight + flatFees) * (1 + VAT);
+  const sellPrice0 = +els.sellprice.value;
+  const priceUplift = +els.priceUplift.value / 100;
+  const escalation = +els.escalation.value / 100;
+  const maintenance = +els.maintenance.value;
+  const degradation = +els.degradation.value / 100;
+  const discount = +els.discount.value / 100;
+
+  batteryFields.style.display = hasBattery ? 'block' : 'none';
+  scBattField.style.display = hasBattery ? 'block' : 'none';
+  sharedMeterFields.style.display = shared ? 'block' : 'none';
+  neighborSummary.style.display = shared ? 'grid' : 'none';
+
+  const selfConsumptionShare = hasBattery ? scBatt : scNoBatt;
+  const totalInvestment = pvSize * pvCostPerKwp + battSize * battCostPerKwh;
+
+  const years = 25;
+  let cumulative = 0;
+  let cumulativeDiscounted = -totalInvestment;
+  const cumSeries = [-totalInvestment];
+  const labels = [0];
+  let paybackYear = null;
+
+  let year1DaySelfConsumed = 0, year1NightShifted = 0, year1Exported = 0, year1Bought = 0;
+  let year1Savings = 0;
+
+  for (let y = 1; y <= years; y++){
+    const production = pvSize * specificYield * Math.pow(1 - degradation, y - 1);
+
+    let daySelfConsumed = production * selfConsumptionShare;
+    daySelfConsumed = Math.min(daySelfConsumed, consumptionDay);
+
+    let remainingProd = Math.max(production - daySelfConsumed, 0);
+    let nightShifted = remainingProd * battNightShift;
+    nightShifted = Math.min(nightShifted, consumptionNight);
+
+    const exported = Math.max(remainingProd - nightShifted, 0);
+    const dayBought = Math.max(consumptionDay - daySelfConsumed, 0);
+    const nightBought = Math.max(consumptionNight - nightShifted, 0);
+
+    const escFactor = Math.pow(1 + escalation, y - 1);
+    const energyDay_y = energyDay0 * escFactor;
+    const nonEnergyDay_y = (networkDay + flatFees) * escFactor;
+    const buyPriceDay = (energyDay_y + nonEnergyDay_y) * (1 + VAT);
+    const buyPriceNight = buyPriceNight0 * escFactor;
+    const sellPrice = sellPrice0 * escFactor;
+    const upliftedDayPrice = (energyDay_y * (1 + priceUplift) + nonEnergyDay_y) * (1 + VAT);
+
+    const daySavings = consumptionDay * buyPriceDay - dayBought * upliftedDayPrice;
+    const nightSavings = nightShifted * buyPriceNight;
+    const exportRevenue = exported * sellPrice;
+
+    const savings = daySavings + nightSavings + exportRevenue - maintenance;
+
+    cumulative += savings;
+    cumulativeDiscounted += savings / Math.pow(1 + discount, y);
+
+    cumSeries.push(cumulative - totalInvestment);
+    labels.push(y);
+
+    if (paybackYear === null && (cumulative - totalInvestment) >= 0){
+      const prevCum = cumSeries[cumSeries.length - 2];
+      const thisCum = cumSeries[cumSeries.length - 1];
+      const frac = prevCum / (prevCum - thisCum);
+      paybackYear = (y - 1) + frac;
+    }
+
+    if (y === 1){
+      year1DaySelfConsumed = daySelfConsumed;
+      year1NightShifted = nightShifted;
+      year1Exported = exported;
+      year1Bought = dayBought + nightBought;
+      year1Savings = savings;
+    }
+  }
+
+  const npv = cumulativeDiscounted;
+  const neighborDayUse = Math.max(consumptionDay - myDayUse, 0);
+  const neighborNightUse = Math.max(consumptionNight - myNightUse, 0);
+  const upliftedDayPrice1 = (energyDay0 * (1 + priceUplift) + networkDay + flatFees) * (1 + VAT);
+  const neighborPaymentFrozen = neighborDayUse * buyPriceDay0 + neighborNightUse * buyPriceNight0;
+  const neighborPaymentFloating = neighborDayUse * upliftedDayPrice1 + neighborNightUse * buyPriceNight0;
+  const neighborDiff = neighborPaymentFloating - neighborPaymentFrozen;
+
+  document.getElementById('m-investment').textContent = fmtEUR0.format(totalInvestment);
+  document.getElementById('m-investment-sub').textContent = `${pvSize} kWp paneelid` + (hasBattery ? ` + ${battSize} kWh aku` : ' (aku kaasamata)') + ', 100% sinu oma';
+  document.getElementById('m-savings1').textContent = fmtEUR0.format(Math.max(year1Savings,0));
+  document.getElementById('m-payback').textContent = paybackYear ? paybackYear.toFixed(1) + ' aastat' : '> 25 aastat';
+  document.getElementById('m-payback').className = 'value ' + (paybackYear && paybackYear <= 15 ? 'good' : (paybackYear ? '' : 'warn'));
+  document.getElementById('m-npv').textContent = fmtEUR0.format(npv);
+  document.getElementById('m-npv').className = 'value ' + (npv >= 0 ? 'good' : 'warn');
+  document.getElementById('m-npv-sub').textContent = npv >= 0 ? 'investeering loob väärtust' : 'investeering ei tasu end diskonteeritult ära';
+
+  document.getElementById('m-neighbor-frozen').textContent = fmtEUR0.format(neighborPaymentFrozen);
+  document.getElementById('m-neighbor-floating').textContent = fmtEUR0.format(neighborPaymentFloating);
+  document.getElementById('m-neighbor-diff').textContent = (neighborDiff >= 0 ? '+' : '') + fmtEUR0.format(neighborDiff);
+  document.getElementById('m-neighbor-diff').style.color = neighborDiff > 0 ? '#D85A30' : '#1D9E75';
+
+  drawCashflowChart(labels, cumSeries);
+  drawBalanceChart(year1DaySelfConsumed, year1NightShifted, year1Exported, year1Bought);
+}
+
+function drawCashflowChart(labels, data){
+  const ctx = document.getElementById('cashflowChart');
+  const pointColors = data.map(v => v >= 0 ? '#1D9E75' : '#D85A30');
+  if (cashflowChart){
+    cashflowChart.data.labels = labels;
+    cashflowChart.data.datasets[0].data = data;
+    cashflowChart.data.datasets[0].pointBackgroundColor = pointColors;
+    cashflowChart.update();
+    return;
+  }
+  cashflowChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Kumulatiivne rahavoog',
+        data: data,
+        borderColor: '#009DE0',
+        backgroundColor: 'rgba(0,157,224,0.08)',
+        fill: true,
+        tension: 0.15,
+        pointRadius: 2,
+        pointBackgroundColor: pointColors,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: (items) => 'Aasta ' + items[0].label,
+            label: (item) => fmtEUR0.format(item.raw)
+          }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Aasta' }, grid: { display: false } },
+        y: {
+          title: { display: true, text: 'Kumulatiivne rahavoog (€)' },
+          grid: { color: '#e7eef1' },
+          ticks: { callback: (v) => fmtEUR0.format(v) }
+        }
+      }
+    }
+  });
+}
+
+function drawBalanceChart(daySelfConsumed, nightShifted, exported, bought){
+  const ctx = document.getElementById('balanceChart');
+  const data = [Math.round(daySelfConsumed), Math.round(nightShifted), Math.round(exported), Math.round(bought)];
+  if (balanceChart){
+    balanceChart.data.datasets[0].data = [data[0]];
+    balanceChart.data.datasets[1].data = [data[1]];
+    balanceChart.data.datasets[2].data = [data[2]];
+    balanceChart.data.datasets[3].data = [data[3]];
+    balanceChart.update();
+    return;
+  }
+  balanceChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['kWh aastas'],
+      datasets: [
+        { label: 'Omatarbitud päeval', data: [data[0]], backgroundColor: '#009DE0', stack: 's' },
+        { label: 'Aku kaudu öösse nihutatud', data: [data[1]], backgroundColor: '#7F77DD', stack: 's' },
+        { label: 'Võrku müüdud', data: [data[2]], backgroundColor: '#1D9E75', stack: 's' },
+        { label: 'Võrgust ostetud', data: [data[3]], backgroundColor: '#D85A30', stack: 's' }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (item) => item.dataset.label + ': ' + fmtNum.format(item.raw) + ' kWh'
+          }
+        }
+      },
+      scales: {
+        x: { stacked: true, title: { display: true, text: 'kWh' }, grid: { color: '#e7eef1' } },
+        y: { stacked: true, grid: { display: false } }
+      }
+    }
+  });
+}
+
+ids.forEach(id => els[id].addEventListener('input', calculate));
+hasBatteryEl.addEventListener('change', calculate);
+sharedMeterEl.addEventListener('change', calculate);
+
+calculate();
+</script>
+
+</body>
+</html>
