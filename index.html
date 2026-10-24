@@ -417,6 +417,25 @@
         <p class="helptext" style="margin-top:-.5rem;">
           Kui lubatud, laeb aku end päikese ülejäägi otsa saades ka võrgust öötariifi tundidel (odavam), et seda päevatariifi tundidel kasutada (kallim) — tegelik hinna-arbitraaž, mitte ainult päikese salvestamine. Kui sinu inverter/paigaldus seda ei toeta, lülita välja — siis laeb aku end ainult päikese ülejäägist.
         </p>
+        <div class="field">
+          <label>Peakaitse</label>
+          <select id="mainFuse">
+            <option value="3.68">1×16A (3,68 kW)</option>
+            <option value="4.6">1×20A (4,6 kW)</option>
+            <option value="5.75">1×25A (5,75 kW)</option>
+            <option value="8.05">1×35A (8,05 kW)</option>
+            <option value="11.09">3×16A (11,09 kW)</option>
+            <option value="13.86">3×20A (13,86 kW)</option>
+            <option value="17.32" selected>3×25A (17,32 kW)</option>
+            <option value="22.17">3×32A (22,17 kW)</option>
+            <option value="24.25">3×35A (24,25 kW)</option>
+            <option value="34.64">3×50A (34,64 kW)</option>
+            <option value="43.65">3×63A (43,65 kW)</option>
+          </select>
+        </div>
+        <p class="helptext" style="margin-top:-.5rem;">
+          Peakaitse piirab, kui kiiresti saab korraga võrgust osta või võrku müüa (kW). See mõjutab otseselt aku laadimist/tühjendamist: suurema aku täielik laadimine või tühjendamine ei toimu enam "hetkeliselt" ühe tunniga, vaid jaotub vajadusel mitme tunni peale, kui aku maht ületab seda, mida peakaitse ühe tunni jooksul läbi laseb. Mõjutab ka müügihinna automaatset arvutust allpool (vt "Müügihind võrku").
+        </p>
       </div>
 
       <hr class="section-divider">
@@ -452,14 +471,17 @@
       <p class="subtle-h">Elektri hinnad ja kulud — energia ja võrgutasu</p>
       <div class="row2">
         <div class="field">
-          <label>Energia hind, päev <span class="val" id="v-energyDay">0.10 €/kWh</span></label>
-          <input type="range" id="energyDay" min="0.02" max="0.30" step="0.01" value="0.10">
+          <label>Energia hind, päev <span class="val" id="v-energyDay">0.1068 €/kWh</span></label>
+          <input type="range" id="energyDay" min="0.02" max="0.30" step="0.0001" value="0.1068">
         </div>
         <div class="field">
-          <label>Energia hind, öö <span class="val" id="v-energyNight">0.05 €/kWh</span></label>
-          <input type="range" id="energyNight" min="0.01" max="0.20" step="0.01" value="0.05">
+          <label>Energia hind, öö <span class="val" id="v-energyNight">0.0604 €/kWh</span></label>
+          <input type="range" id="energyNight" min="0.01" max="0.20" step="0.0001" value="0.0604">
         </div>
       </div>
+      <p class="helptext" style="margin-top:-.5rem;">
+        Vaikeväärtused on sinu tegeliku börsihinnaga lepingu tunnipõhiste mõõtmiste (2025-08 kuni 2026-10, ~9935 tundi) keskmised börsihinnad (käibemaksuta) vastavalt tööpäeviti 7-22 = päev / ülejäänu = öö jaotusele — mitte üldine hinnang.
+      </p>
       <div class="row2">
         <div class="field">
           <label>Võrgutasu, päev <span class="val" id="v-networkDay">0.037 €/kWh</span></label>
@@ -470,10 +492,12 @@
           <input type="range" id="networkNight" min="0.005" max="0.05" step="0.001" value="0.021">
         </div>
       </div>
-      <div class="field">
-        <label>Müügihind võrku (ülejääk) <span class="val" id="v-sellprice">0.06 €/kWh</span></label>
-        <input type="range" id="sellprice" min="0.02" max="0.20" step="0.01" value="0.06">
+      <div class="fixed-note" id="sellPriceInfo">
+        <span>Müügihind võrku (ülejääk): <b>—</b></span>
       </div>
+      <p class="helptext" style="margin-top:-.5rem;">
+        See ei ole enam käsitsi sisestatav — arvutatakse automaatselt sinu tegelikust tunnipõhisest börsihinna andmestikust. <b>Ilma akuta</b>: sinu praeguse paneelipaigutuse tootmisega kaalutud keskmine börsihind (kuna ülejääk tuleb müüa kohe, nendel tundidel, mil paneelid parasjagu toodavad — tihti just siis, kui hind on madal). <b>Akuga</b>: kalendriaasta kõige kallima 25% tunni (kaalutud) keskmine börsihind (kuna aku võimaldab müüa valikuliselt soodsamatel hetkedel, mitte kohe tootmise ajal).
+      </p>
 
       <hr class="section-divider">
       <p class="subtle-h">Riiklikud tasud (kWh kohta, ei sõltu kellaajast)</p>
@@ -592,6 +616,48 @@
       <p class="note">
         Omatarbimine ja aku käitumine arvutatakse nüüd <b>tund-tunnilt</b>, mitte koefitsendi järgi: iga kuu kohta simuleeritakse eraldi üks tüüpiline tööpäev ja üks tüüpiline nädalavahetuse päev, kasutades sinu tegelikku tunnipõhist tarbimiskuju (tuletatud Kaljula tee 28 ühise mõõtepunkti ~9900 tunnisest mõõtmisest, 2025-08 kuni 2026-10) ja päikese tegelikul asendil põhinevat tootmiskõverat. Aku laeb end esmalt päikese ülejäägist, vajadusel (kui lubatud) ka võrgust öötariifi tundidel, ning tühjeneb eelistatult päevatariifi (kallimatel) tundidel — tegelik akumaht on seega päris piirang, mitte eeldatav protsent. Nädalavahetus loetakse tööpäeva-öötariifi osas tervikuna öötariifiks, vastavalt Elektrilevi reeglile. Inverteri AC-võimsuse piirist tulenev clippingu-kadu on samuti juba simulatsiooni sees arvesse võetud. "Jääkostu hinnatõus" liugur jääb lisakohandusena alles, kui arvad, et sinu leping käitub veel teisiti. Kumba hinda naabri arves kasutada, tuleb naabriga kirjalikult kokku leppida. Suurema täpsuse jaoks küsi pakkumust ja tarbimisandmete analüüsi paigaldajalt või elektrimüüjalt.
       </p>
+
+      <div class="card" style="margin-top:1.2rem;">
+        <h2>Kuu üksikasjad — tunnipõhine vaade</h2>
+        <div class="field" style="margin-bottom:1.1rem;">
+          <label>Vali kuu</label>
+          <select id="monthDetailSelect">
+            <option value="0">Jaanuar</option>
+            <option value="1">Veebruar</option>
+            <option value="2">Märts</option>
+            <option value="3">Aprill</option>
+            <option value="4">Mai</option>
+            <option value="5">Juuni</option>
+            <option value="6" selected>Juuli</option>
+            <option value="7">August</option>
+            <option value="8">September</option>
+            <option value="9">Oktoober</option>
+            <option value="10">November</option>
+            <option value="11">Detsember</option>
+          </select>
+        </div>
+        <div style="position:relative;height:320px;">
+          <canvas id="monthDetailChart" role="img" aria-label="Joonis näitab valitud kuu tüüpilise tööpäeva ja nädalavahetuse tunnipõhist tootmist, tarbimist, võrgust ostu ja võrku müüki"></canvas>
+        </div>
+        <div class="breakdown">
+          <span class="legend-item"><span class="dot" style="background:#F2A93B"></span>Tootmine</span>
+          <span class="legend-item"><span class="dot" style="background:#042C40"></span>Tarbimine</span>
+          <span class="legend-item"><span class="dot" style="background:#D85A30"></span>Võrgust ostetud</span>
+          <span class="legend-item"><span class="dot" style="background:#1D9E75"></span>Võrku müüdud</span>
+        </div>
+        <p class="helptext" style="margin-top:.9rem;">
+          Tunnid 0–23 (vasak pool) on valitud kuu tüüpiline <b>tööpäev</b>, tunnid 24–47 (parem pool, märgitud N0–N23) kuu tüüpiline <b>nädalavahetuse päev</b> — vastavalt sellele, kuidas mudel neid eraldi simuleerib. Väärtused põhinevad 1. aasta (ilma vananemiseta) ja hetkel kehtivatel sisenditel.
+        </p>
+        <table style="width:100%; border-collapse:collapse; margin-top:1.1rem; font-size:.85rem;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--line);">
+              <th style="text-align:left; padding:.5rem 0; color:var(--ink-soft); font-weight:600;">Kuu koondarv</th>
+              <th style="text-align:right; padding:.5rem 0; color:var(--ink-soft); font-weight:600;">kWh</th>
+            </tr>
+          </thead>
+          <tbody id="monthDetailTableBody"></tbody>
+        </table>
+      </div>
     </div>
 
   </div>
@@ -606,7 +672,7 @@ const ids = ['consumptionDay','consumptionNight','myDayUse','myNightUse',
   'installCost','commissionCost','designCost','electricalCost','gridFee',
   'energyDay','energyNight','networkDay','networkNight',
   'excise','renewfee','securityfee','balancingfee',
-  'sellprice','priceUplift','escalation','maintenance','degradation','discount'];
+  'priceUplift','escalation','maintenance','degradation','discount'];
 const els = {};
 ids.forEach(id => els[id] = document.getElementById(id));
 const hasBatteryEl = document.getElementById('hasBattery');
@@ -615,6 +681,7 @@ const sharedMeterEl = document.getElementById('sharedMeter');
 const inverterModelEl = document.getElementById('inverterModel');
 const battModulesEl = document.getElementById('battModules');
 const allowGridChargeEl = document.getElementById('allowGridCharge');
+const mainFuseEl = document.getElementById('mainFuse');
 const DEYE_MODULE_KWH = 5.12;
 const DEYE_MODULE_EUR = 900.54;      // avg of 5 EU retailers (module), incl. VAT (see helptext)
 const DEYE_CONTROL_BOX_EUR = 872.76; // avg of 5 EU retailers (control box/BMS), incl. VAT — one per cluster
@@ -787,6 +854,65 @@ function timingFactor(compassAzimuth, tiltDeg){
 const MONTHLY_CONSUMPTION_SHARE = [0.12611,0.11100,0.09416,0.08902,0.07622,0.05916,
                                     0.05530,0.05807,0.06266,0.07437,0.08875,0.10518];
 
+// Real average hourly spot price (EUR/kWh, excl VAT) by month (0=Jan..11=Dec), derived from
+// Karel's actual contract's hourly börsihind data (~9935 h, 2025-08..2026-10). Used to compute
+// the grid export price automatically (see sellPrice0 in calculate()).
+const PRICE_SHAPE_WEEKDAY = [
+  [0.0962,0.0979,0.0923,0.0914,0.0907,0.0985,0.1218,0.1723,0.2233,0.2365,0.2191,0.2145,0.2170,0.2150,0.2147,0.2152,0.2232,0.2240,0.2122,0.2012,0.1799,0.1533,0.1307,0.1206],
+  [0.1082,0.1133,0.1037,0.0981,0.0970,0.1097,0.1538,0.2034,0.2325,0.2472,0.2330,0.2099,0.1940,0.1992,0.1905,0.1892,0.1944,0.2201,0.2129,0.2067,0.1873,0.1509,0.1342,0.1249],
+  [0.0337,0.0406,0.0351,0.0356,0.0336,0.0452,0.0888,0.1049,0.0931,0.0604,0.0500,0.0327,0.0269,0.0296,0.0259,0.0327,0.0504,0.0798,0.1182,0.1192,0.1049,0.0882,0.0735,0.0502],
+  [0.0519,0.0495,0.0475,0.0467,0.0502,0.0571,0.0763,0.0956,0.0967,0.0815,0.0612,0.0432,0.0354,0.0304,0.0291,0.0308,0.0334,0.0437,0.0631,0.0890,0.1083,0.1065,0.0874,0.0696],
+  [0.0676,0.0602,0.0538,0.0530,0.0551,0.0577,0.0705,0.0808,0.0855,0.0813,0.0667,0.0525,0.0470,0.0458,0.0427,0.0425,0.0457,0.0557,0.0681,0.0865,0.1050,0.1105,0.1016,0.0827],
+  [0.0916,0.0836,0.0673,0.0621,0.0603,0.0597,0.0713,0.0841,0.0909,0.0796,0.0671,0.0577,0.0499,0.0450,0.0404,0.0391,0.0418,0.0484,0.0676,0.1024,0.1229,0.1423,0.1354,0.1130],
+  [0.0631,0.0611,0.0569,0.0544,0.0531,0.0497,0.0542,0.0643,0.0605,0.0491,0.0369,0.0254,0.0210,0.0203,0.0187,0.0183,0.0189,0.0189,0.0349,0.0674,0.0930,0.1033,0.1075,0.0865],
+  [0.0745,0.0639,0.0544,0.0519,0.0536,0.0517,0.0740,0.0953,0.1025,0.0899,0.0765,0.0634,0.0560,0.0508,0.0476,0.0490,0.0561,0.0678,0.0931,0.1334,0.1608,0.1595,0.1289,0.0971],
+  [0.0520,0.0606,0.0520,0.0461,0.0460,0.0566,0.1019,0.1453,0.1657,0.1161,0.0830,0.0620,0.0543,0.0429,0.0417,0.0439,0.0583,0.0805,0.1350,0.1807,0.2328,0.1569,0.0965,0.0728],
+  [0.0511,0.0530,0.0488,0.0450,0.0474,0.0510,0.0806,0.1321,0.1672,0.1286,0.0982,0.0871,0.0760,0.0762,0.0844,0.0892,0.0988,0.1260,0.1562,0.1673,0.1454,0.1179,0.0905,0.0689],
+  [0.0509,0.0504,0.0466,0.0443,0.0445,0.0492,0.0822,0.1138,0.1610,0.1732,0.1526,0.1420,0.1510,0.1657,0.1664,0.1656,0.1730,0.1690,0.1662,0.1405,0.1169,0.0909,0.0740,0.0574],
+  [0.0354,0.0368,0.0368,0.0333,0.0331,0.0376,0.0501,0.0810,0.1128,0.1281,0.1202,0.1101,0.1033,0.1051,0.1198,0.1175,0.1205,0.1185,0.1073,0.1033,0.0904,0.0774,0.0670,0.0529]
+];
+const PRICE_SHAPE_WEEKEND = [
+  [0.0819,0.0852,0.0777,0.0736,0.0769,0.0785,0.0838,0.0839,0.0940,0.1014,0.1171,0.1166,0.1217,0.1328,0.1353,0.1416,0.1512,0.1498,0.1500,0.1479,0.1428,0.1529,0.1191,0.1032],
+  [0.0857,0.0846,0.0869,0.0840,0.0817,0.0835,0.0853,0.0858,0.1020,0.1244,0.1263,0.1317,0.1326,0.1373,0.1331,0.1336,0.1531,0.1721,0.1631,0.1501,0.1305,0.1223,0.1236,0.1012],
+  [0.0634,0.0600,0.0587,0.0526,0.0517,0.0684,0.0654,0.0579,0.0356,0.0273,0.0257,0.0235,0.0215,0.0217,0.0236,0.0237,0.0354,0.0658,0.1027,0.1099,0.1110,0.1016,0.0809,0.0733],
+  [0.0451,0.0336,0.0316,0.0311,0.0350,0.0376,0.0401,0.0369,0.0348,0.0289,0.0206,0.0135,0.0121,0.0095,0.0087,0.0102,0.0113,0.0255,0.0476,0.0579,0.0608,0.0555,0.0478,0.0399],
+  [0.0569,0.0485,0.0392,0.0373,0.0366,0.0355,0.0382,0.0381,0.0428,0.0417,0.0260,0.0162,0.0136,0.0126,0.0119,0.0122,0.0150,0.0243,0.0421,0.0651,0.0803,0.0844,0.0843,0.0767],
+  [0.0552,0.0587,0.0476,0.0405,0.0369,0.0313,0.0270,0.0277,0.0252,0.0245,0.0200,0.0159,0.0139,0.0100,0.0093,0.0098,0.0115,0.0187,0.0312,0.0531,0.0824,0.0888,0.0885,0.0747],
+  [0.0600,0.0400,0.0323,0.0274,0.0259,0.0265,0.0240,0.0133,0.0141,0.0116,0.0090,0.0079,0.0081,0.0072,0.0050,0.0051,0.0056,0.0076,0.0124,0.0307,0.0680,0.0725,0.0696,0.0598],
+  [0.0485,0.0500,0.0429,0.0390,0.0392,0.0343,0.0306,0.0298,0.0287,0.0284,0.0213,0.0156,0.0181,0.0116,0.0094,0.0096,0.0144,0.0187,0.0393,0.0684,0.0791,0.0795,0.0687,0.0547],
+  [0.0546,0.0480,0.0400,0.0400,0.0420,0.0452,0.0469,0.0581,0.0573,0.0488,0.0376,0.0271,0.0184,0.0143,0.0114,0.0137,0.0311,0.0462,0.1352,0.1295,0.1321,0.0999,0.0776,0.0627],
+  [0.0400,0.0333,0.0296,0.0298,0.0332,0.0287,0.0343,0.0375,0.0509,0.0429,0.0376,0.0276,0.0270,0.0266,0.0267,0.0298,0.0467,0.0823,0.0899,0.0934,0.0867,0.0718,0.0513,0.0338],
+  [0.0337,0.0360,0.0331,0.0274,0.0287,0.0346,0.0393,0.0439,0.0524,0.0682,0.0598,0.0501,0.0463,0.0517,0.0683,0.0873,0.1024,0.1056,0.0947,0.0832,0.0818,0.0656,0.0586,0.0463],
+  [0.0314,0.0323,0.0246,0.0224,0.0207,0.0201,0.0238,0.0277,0.0421,0.0453,0.0523,0.0504,0.0504,0.0524,0.0570,0.0649,0.0645,0.0756,0.0565,0.0551,0.0551,0.0510,0.0438,0.0318]
+];
+// Top-25%-of-the-year most expensive hours (by calendar weight), avg real price — used as the
+// automatic export price when a battery is present (lets you export preferentially at good prices).
+// Cached on first use since it only depends on the fixed price grid above, not on any live input.
+let _top25PriceCache = null;
+function getTop25PriceAvg(){
+  if (_top25PriceCache !== null) return _top25PriceCache;
+  const DIM = [31,28,31,30,31,30,31,31,30,31,30,31];
+  const cells = [];
+  for (let m=0; m<12; m++){
+    const wdCount = DIM[m]*5/7, weCount = DIM[m]*2/7;
+    for (let h=0; h<24; h++){
+      cells.push([PRICE_SHAPE_WEEKDAY[m][h], wdCount]);
+      cells.push([PRICE_SHAPE_WEEKEND[m][h], weCount]);
+    }
+  }
+  cells.sort((a,b)=>b[0]-a[0]);
+  const totalWeight = cells.reduce((s,c)=>s+c[1],0);
+  const target = totalWeight*0.25;
+  let cum=0, num=0, den=0;
+  for (const [price,w] of cells){
+    if (cum>=target) break;
+    const take = Math.min(w, target-cum);
+    num += price*take; den += take; cum += take;
+  }
+  _top25PriceCache = den>0 ? num/den : 0.08;
+  return _top25PriceCache;
+}
+
 // Real hourly consumption shape by month (index 0=Jan..11=Dec), derived from Karel's
 // actual meter data (Kaljula tee 28, ~9935 h, 2025-08..2026-10). Each 24-value row sums to 1.
 const HOURLY_SHAPE_WEEKDAY = [
@@ -897,9 +1023,10 @@ function clippingFraction(pvSizeA, azimuthA, pvSizeB, azimuthB, tiltDeg, yieldA,
 // grid at the cheapest (night-tariff) hours, then discharges at the priciest (day-tariff) hours
 // first — solar-sourced charge is drawn down before grid-sourced charge, so the two are credited
 // separately downstream (real self-consumption vs. price arbitrage are not the same thing).
-function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, isDay_h, socSolarStart, socGridStart, battCapacity, roundtripEff, allowGridCharge, inverterAcCap){
+function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, isDay_h, socSolarStart, socGridStart, battCapacity, roundtripEff, allowGridCharge, inverterAcCap, powerCapKw){
   const n = 24;
   const cap = inverterAcCap>0 ? inverterAcCap : Infinity;
+  const pcap = powerCapKw>0 ? powerCapKw : Infinity; // peakaitse-derived max kW crossing the meter per hour
   const prod = prodA_h.map((v,i)=>Math.min(v+prodB_h[i], cap));
   let socSolar = socSolarStart, socGrid = socGridStart;
 
@@ -907,13 +1034,19 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, isDay_h, socSolarSt
   const netLoad = cons_h.map((c,i)=>c-directSelf[i]);
   const surplus = prod.map((p,i)=>p-directSelf[i]);
 
+  // Solar-to-battery charging happens behind the meter (DC-coupled), so it is not limited by
+  // the grid fuse — only what actually crosses the meter (export, grid-charging, grid-bought) is.
   const solarCharged = new Array(n).fill(0);
   for (let i=0;i<n;i++){
     const room = battCapacity-(socSolar+socGrid);
     const c = Math.min(surplus[i], room);
     solarCharged[i] = c; socSolar += c;
   }
-  const exportArr = surplus.map((s,i)=>s-solarCharged[i]);
+  // Whatever solar surplus the battery couldn't absorb must cross the meter to be exported —
+  // capped at the fuse's power limit; anything beyond that is curtailed (lost), not exported.
+  const rawExport = surplus.map((s,i)=>s-solarCharged[i]);
+  const exportArr = rawExport.map(e=>Math.min(e, pcap));
+  const curtailed = rawExport.map((e,i)=>e-exportArr[i]);
 
   const gridCharged = new Array(n).fill(0);
   if (allowGridCharge && battCapacity>0){
@@ -922,7 +1055,9 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, isDay_h, socSolarSt
       const order = [...Array(n).keys()].sort((a,b)=>(isDay_h[a]?1:0)-(isDay_h[b]?1:0));
       for (const idx of order){
         if (roomLeft<=0.0001) break;
-        const c = Math.min(roomLeft, battCapacity);
+        // Charging also crosses the meter — capped at the fuse limit per hour, so filling a
+        // large battery can take several (cheap) hours instead of one.
+        const c = Math.min(roomLeft, pcap);
         gridCharged[idx] += c; roomLeft -= c; socGrid += c;
       }
     }
@@ -947,7 +1082,7 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, isDay_h, socSolarSt
   const gridBought = netLoad.map((nl,i)=>nl-dischargeFromSolar[i]-dischargeFromGrid[i]);
 
   return {directSelf, exportArr, dischargeFromSolar, dischargeFromGrid, gridCharged, gridBought,
-          socSolarEnd: socSolar, socGridEnd: socGrid, isDay_h};
+          curtailed, socSolarEnd: socSolar, socGridEnd: socGrid, isDay_h};
 }
 
 let cashflowChart, balanceChart;
@@ -990,7 +1125,6 @@ function updateLabels(){
   document.getElementById('v-renewfee').textContent = (+els.renewfee.value).toFixed(4) + ' €/kWh';
   document.getElementById('v-securityfee').textContent = (+els.securityfee.value).toFixed(4) + ' €/kWh';
   document.getElementById('v-balancingfee').textContent = (+els.balancingfee.value).toFixed(4) + ' €/kWh';
-  document.getElementById('v-sellprice').textContent = (+els.sellprice.value).toFixed(2) + ' €/kWh';
   document.getElementById('v-priceUplift').textContent = els.priceUplift.value + ' %';
   document.getElementById('v-escalation').textContent = els.escalation.value + ' %';
   document.getElementById('v-maintenance').textContent = fmtNum.format(+els.maintenance.value) + ' €/a';
@@ -1040,7 +1174,7 @@ function calculate(){
   const VAT = 0.24;
   const buyPriceDay0 = (energyDay0 + networkDay + flatFees) * (1 + VAT);
   const buyPriceNight0 = (energyNight0 + networkNight + flatFees) * (1 + VAT);
-  const sellPrice0 = +els.sellprice.value;
+  const powerCapKw = +mainFuseEl.value;
   const priceUplift = +els.priceUplift.value / 100;
   const escalation = +els.escalation.value / 100;
   const maintenance = +els.maintenance.value;
@@ -1067,6 +1201,45 @@ function calculate(){
   let sumAraw = 0, sumBraw = 0;
   for (let i=0;i<profA.length;i++) sumAraw += profA[i];
   if (profB) for (let i=0;i<profB.length;i++) sumBraw += profB[i];
+
+  // Automatic export (sell) price: run one year-1 pass of the exact same hourly simulation,
+  // then take the EXPORT-weighted average of the real historical spot price (see PRICE_SHAPE_*)
+  // over whatever actually got exported. With no battery, everything not self-consumed is
+  // exported as it's produced (often cheap midday hours). With a battery (+ the peakaitse power
+  // cap above), export only happens once the battery is full — and for a big battery, charging
+  // itself takes several of the cheapest hours before export resumes — so the realized price
+  // reflects the ACTUAL simulated behaviour for this exact system, not a generic assumption.
+  const scaleA1 = sumAraw>0 ? (pvSizeA*yieldA)/sumAraw : 0;
+  const scaleB1 = (profB && sumBraw>0) ? (pvSizeB*yieldB)/sumBraw : 0;
+  const DAYS_IN_MONTH_PRE = [31,28,31,30,31,30,31,31,30,31,30,31];
+  let sellNum = 0, sellDen = 0;
+  for (let m = 0; m < 12; m++){
+    const doy1 = MID_MONTH_DOY[m];
+    const startIdx1 = doy1*24;
+    const prodA_h1 = new Array(24), prodB_h1 = new Array(24);
+    for (let h = 0; h < 24; h++){
+      prodA_h1[h] = profA[startIdx1+h]*scaleA1;
+      prodB_h1[h] = profB ? profB[startIdx1+h]*scaleB1 : 0;
+    }
+    const monthTotal1 = (consumptionDay+consumptionNight) * MONTHLY_CONSUMPTION_SHARE[m];
+    const wdTotal1 = monthTotal1 * WEEKDAY_FRACTION[m];
+    const weTotal1 = monthTotal1 * (1 - WEEKDAY_FRACTION[m]);
+    const wdCount1 = DAYS_IN_MONTH_PRE[m]*5/7, weCount1 = DAYS_IN_MONTH_PRE[m]*2/7;
+    const cons_wd1 = HOURLY_SHAPE_WEEKDAY[m].map(f => f*(wdTotal1/wdCount1));
+    const cons_we1 = HOURLY_SHAPE_WEEKEND[m].map(f => f*(weTotal1/weCount1));
+    const battCap1 = hasBattery ? battSize : 0;
+    const simWd1 = simulateRepresentativeDay(prodA_h1, prodB_h1, cons_wd1, ISDAY_WEEKDAY, 0, 0, battCap1, roundtripEff, allowGridCharge, inverterAc, powerCapKw);
+    const simWe1 = simulateRepresentativeDay(prodA_h1, prodB_h1, cons_we1, ISDAY_WEEKEND, simWd1.socSolarEnd, simWd1.socGridEnd, battCap1, roundtripEff, allowGridCharge, inverterAc, powerCapKw);
+    for (let h = 0; h < 24; h++){
+      sellNum += simWd1.exportArr[h]*wdCount1*PRICE_SHAPE_WEEKDAY[m][h];
+      sellDen += simWd1.exportArr[h]*wdCount1;
+      sellNum += simWe1.exportArr[h]*weCount1*PRICE_SHAPE_WEEKEND[m][h];
+      sellDen += simWe1.exportArr[h]*weCount1;
+    }
+  }
+  const sellPrice0 = sellDen > 0.01 ? sellNum/sellDen : getTop25PriceAvg();
+  document.getElementById('sellPriceInfo').innerHTML =
+    `<span>Müügihind võrku (ülejääk): <b>${sellPrice0.toFixed(4)} €/kWh</b></span><span>${hasBattery ? 'akuga' : 'ilma akuta'} stsenaarium</span>`;
 
   const years = 25;
   let cumulative = 0;
@@ -1118,8 +1291,8 @@ function calculate(){
       const cons_we = HOURLY_SHAPE_WEEKEND[m].map(f => f*weDayTotal);
 
       const battCap = hasBattery ? battSize : 0;
-      const simWd = simulateRepresentativeDay(prodA_h, prodB_h, cons_wd, ISDAY_WEEKDAY, 0, 0, battCap, roundtripEff, allowGridCharge, inverterAc);
-      const simWe = simulateRepresentativeDay(prodA_h, prodB_h, cons_we, ISDAY_WEEKEND, simWd.socSolarEnd, simWd.socGridEnd, battCap, roundtripEff, allowGridCharge, inverterAc);
+      const simWd = simulateRepresentativeDay(prodA_h, prodB_h, cons_wd, ISDAY_WEEKDAY, 0, 0, battCap, roundtripEff, allowGridCharge, inverterAc, powerCapKw);
+      const simWe = simulateRepresentativeDay(prodA_h, prodB_h, cons_we, ISDAY_WEEKEND, simWd.socSolarEnd, simWd.socGridEnd, battCap, roundtripEff, allowGridCharge, inverterAc, powerCapKw);
 
       let daySelfConsumed_m = 0, nightShifted_m = 0, exported_m = 0;
       let dayBoughtLoad_m = 0, nightBoughtLoad_m = 0, chargeDay_m = 0, chargeNight_m = 0;
@@ -1239,6 +1412,7 @@ function calculate(){
 
   drawCashflowChart(labels, cumSeries);
   drawBalanceChart(year1DaySelfConsumed, year1NightShifted, year1Exported, year1Bought);
+  renderMonthDetail();
 }
 
 function drawCashflowChart(labels, data){
@@ -1333,9 +1507,145 @@ function drawBalanceChart(daySelfConsumed, nightShifted, exported, bought){
   });
 }
 
+let monthDetailChart;
+const monthDetailSelectEl = document.getElementById('monthDetailSelect');
+const DAYS_IN_MONTH_DISPLAY = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+function renderMonthDetail(){
+  const tiltVal = +els.tilt.value;
+  const baseYield = +els.baseyield.value;
+  const pvSizeA = +els.pvsizeA.value;
+  const azimuthA = +els.azimuthA.value;
+  const yieldA = baseYield * orientationFactor(azimuthA, tiltVal);
+  const hasBlockB = hasBlockBEl.checked;
+  const pvSizeB = hasBlockB ? +els.pvsizeB.value : 0;
+  const azimuthB = +els.azimuthB.value;
+  const yieldB = baseYield * orientationFactor(azimuthB, tiltVal);
+  const inverterAc = +els.inverterAc.value;
+  const cap = inverterAc>0 ? inverterAc : Infinity;
+  const consumptionDay = +els.consumptionDay.value;
+  const consumptionNight = +els.consumptionNight.value;
+  const annualConsumptionTotal = consumptionDay + consumptionNight;
+  const hasBattery = hasBatteryEl.checked;
+  const battSize = hasBattery ? +els.battsize.value : 0;
+  const roundtripEff = +els.roundtrip.value / 100;
+  const allowGridCharge = hasBattery && allowGridChargeEl.checked;
+
+  const profA = getHourlyProfile(azimuthA, tiltVal);
+  const profB = pvSizeB>0 ? getHourlyProfile(azimuthB, tiltVal) : null;
+  let sumAraw = 0, sumBraw = 0;
+  for (let i=0;i<profA.length;i++) sumAraw += profA[i];
+  if (profB) for (let i=0;i<profB.length;i++) sumBraw += profB[i];
+  const scaleA = sumAraw>0 ? (pvSizeA*yieldA)/sumAraw : 0;
+  const scaleB = (profB && sumBraw>0) ? (pvSizeB*yieldB)/sumBraw : 0;
+
+  const m = parseInt(monthDetailSelectEl.value, 10);
+  const doy = MID_MONTH_DOY[m];
+  const startIdx = doy*24;
+  const prodA_h = new Array(24), prodB_h = new Array(24);
+  for (let h=0; h<24; h++){
+    prodA_h[h] = profA[startIdx+h]*scaleA;
+    prodB_h[h] = profB ? profB[startIdx+h]*scaleB : 0;
+  }
+
+  const monthConsumptionTotal = annualConsumptionTotal * MONTHLY_CONSUMPTION_SHARE[m];
+  const wdTotal = monthConsumptionTotal * WEEKDAY_FRACTION[m];
+  const weTotal = monthConsumptionTotal * (1 - WEEKDAY_FRACTION[m]);
+  const wdCount = DAYS_IN_MONTH_DISPLAY[m] * 5/7;
+  const weCount = DAYS_IN_MONTH_DISPLAY[m] * 2/7;
+  const cons_wd = HOURLY_SHAPE_WEEKDAY[m].map(f => f*(wdTotal/wdCount));
+  const cons_we = HOURLY_SHAPE_WEEKEND[m].map(f => f*(weTotal/weCount));
+
+  const battCap = hasBattery ? battSize : 0;
+  const powerCapKw = +mainFuseEl.value;
+  const simWd = simulateRepresentativeDay(prodA_h, prodB_h, cons_wd, ISDAY_WEEKDAY, 0, 0, battCap, roundtripEff, allowGridCharge, inverterAc, powerCapKw);
+  const simWe = simulateRepresentativeDay(prodA_h, prodB_h, cons_we, ISDAY_WEEKEND, simWd.socSolarEnd, simWd.socGridEnd, battCap, roundtripEff, allowGridCharge, inverterAc, powerCapKw);
+
+  const labels = [], prodSeries = [], consSeries = [], boughtSeries = [], exportSeries = [];
+  for (let h=0; h<24; h++){
+    labels.push('T'+h);
+    prodSeries.push(Math.min(prodA_h[h]+prodB_h[h], cap));
+    consSeries.push(cons_wd[h]);
+    boughtSeries.push(simWd.gridBought[h]+simWd.gridCharged[h]);
+    exportSeries.push(simWd.exportArr[h]);
+  }
+  for (let h=0; h<24; h++){
+    labels.push('N'+h);
+    prodSeries.push(Math.min(prodA_h[h]+prodB_h[h], cap));
+    consSeries.push(cons_we[h]);
+    boughtSeries.push(simWe.gridBought[h]+simWe.gridCharged[h]);
+    exportSeries.push(simWe.exportArr[h]);
+  }
+
+  drawMonthDetailChart(labels, prodSeries, consSeries, boughtSeries, exportSeries);
+
+  let totalProd=0, totalCons=0, totalSelf=0, totalExport=0, totalBoughtLoad=0, totalBoughtCharge=0;
+  for (let h=0; h<24; h++){
+    const prodCombined = Math.min(prodA_h[h]+prodB_h[h], cap);
+    totalProd += prodCombined*(wdCount+weCount);
+    totalCons += cons_wd[h]*wdCount + cons_we[h]*weCount;
+    totalSelf += (simWd.directSelf[h]+simWd.dischargeFromSolar[h]+simWd.dischargeFromGrid[h])*wdCount;
+    totalSelf += (simWe.directSelf[h]+simWe.dischargeFromSolar[h]+simWe.dischargeFromGrid[h])*weCount;
+    totalExport += simWd.exportArr[h]*wdCount + simWe.exportArr[h]*weCount;
+    totalBoughtLoad += simWd.gridBought[h]*wdCount + simWe.gridBought[h]*weCount;
+    totalBoughtCharge += simWd.gridCharged[h]*wdCount + simWe.gridCharged[h]*weCount;
+  }
+
+  const rows = [
+    ['Tootmine', totalProd],
+    ['Tarbimine', totalCons],
+    ['Omatarbitud (otse + aku)', totalSelf],
+    ['Võrku müüdud', totalExport],
+    ['Võrgust ostetud — tarbimiseks', totalBoughtLoad],
+    ['Võrgust ostetud — aku laadimiseks (arbitraaž)', totalBoughtCharge],
+  ];
+  document.getElementById('monthDetailTableBody').innerHTML = rows.map(([label,val]) =>
+    `<tr style="border-bottom:1px solid var(--line);"><td style="padding:.5rem 0;">${label}</td><td style="text-align:right; padding:.5rem 0; font-weight:600; color:var(--elenger-blue-dark);">${fmtNum.format(Math.round(val))}</td></tr>`
+  ).join('');
+}
+
+function drawMonthDetailChart(labels, prod, cons, bought, exportArr){
+  const ctx = document.getElementById('monthDetailChart');
+  if (monthDetailChart){
+    monthDetailChart.data.labels = labels;
+    monthDetailChart.data.datasets[0].data = prod;
+    monthDetailChart.data.datasets[1].data = cons;
+    monthDetailChart.data.datasets[2].data = bought;
+    monthDetailChart.data.datasets[3].data = exportArr;
+    monthDetailChart.update();
+    return;
+  }
+  monthDetailChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Tootmine', data: prod, borderColor: '#F2A93B', backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, borderWidth: 2 },
+        { label: 'Tarbimine', data: cons, borderColor: '#042C40', backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, borderWidth: 2 },
+        { label: 'Võrgust ostetud', data: bought, borderColor: '#D85A30', backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, borderWidth: 2, borderDash: [4,3] },
+        { label: 'Võrku müüdud', data: exportArr, borderColor: '#1D9E75', backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, borderWidth: 2, borderDash: [4,3] }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (item) => item.dataset.label + ': ' + item.raw.toFixed(2) + ' kWh' } }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Tund (T=tööpäev, N=nädalavahetus)' }, grid: { display: false }, ticks: { maxTicksLimit: 16 } },
+        y: { title: { display: true, text: 'kWh' }, grid: { color: '#e7eef1' } }
+      }
+    }
+  });
+}
+
 ids.forEach(id => els[id].addEventListener('input', calculate));
 hasBatteryEl.addEventListener('change', calculate);
 allowGridChargeEl.addEventListener('change', calculate);
+mainFuseEl.addEventListener('change', calculate);
+monthDetailSelectEl.addEventListener('change', calculate);
 hasBlockBEl.addEventListener('change', calculate);
 sharedMeterEl.addEventListener('change', calculate);
 inverterModelEl.addEventListener('change', () => {
