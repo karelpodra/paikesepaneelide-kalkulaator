@@ -87,6 +87,16 @@
     accent-color:var(--elenger-blue);
     height:6px;
   }
+  select{
+    width:100%;
+    padding:.55rem .65rem;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#fff;
+    color:var(--ink);
+    font-size:.85rem;
+    font-family:inherit;
+  }
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
   .section-divider{
     border:none;
@@ -118,6 +128,8 @@
     font-size:.82rem;
     color:var(--ink-soft);
     margin-bottom:1rem;
+    gap:.6rem;
+    flex-wrap:wrap;
   }
   .fixed-note b{color:var(--elenger-blue-dark);}
   .metrics{
@@ -322,6 +334,35 @@
         Suuna protsent näitab, kui palju see suund tooteb võrreldes tõelise lõunaga (100%) samal katusekaldel — arvutatud päikese asendi järgi sinu asukohas aasta läbi. Lääne/ida suunad annavad tavaliselt ~85-90%, põhjapoolsed suunad palju vähem.</p>
 
       <hr class="section-divider">
+      <p class="subtle-h">Inverter</p>
+      <div class="field">
+        <label>Inverteri mudel</label>
+        <select id="inverterModel">
+          <option value="deye15lv">Deye 15 kW (SUN-15K-SG05LP3, madalpinge, 2 MPPT)</option>
+          <option value="deye20hv" selected>Deye 20 kW (SUN-20K-SG01HP3, kõrgepinge, 2 MPPT)</option>
+          <option value="sungrow15">Sungrow SH15T (3 MPPT)</option>
+          <option value="sungrow20">Sungrow SH20T (3 MPPT)</option>
+          <option value="solis15">Solis S6-EH3P15K (kuni 4 MPPT)</option>
+          <option value="huawei17">Huawei SUN2000-17KTL-M2 (2 MPPT)</option>
+          <option value="custom">Muu / käsitsi sisestatud</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Inverteri AC-võimsus <span class="val" id="v-inverterAc">20 kW</span></label>
+        <input type="range" id="inverterAc" min="3" max="30" step="0.5" value="20">
+      </div>
+      <div class="field">
+        <label>Inverteri hind <span class="val" id="v-inverterCost">2200 €</span></label>
+        <input type="range" id="inverterCost" min="500" max="5000" step="50" value="2200">
+      </div>
+      <div class="fixed-note" id="inverterInfo">
+        <span>—</span>
+      </div>
+      <p class="helptext">
+        Mudeli valimine täidab AC-võimsuse ja hinna tüüpilise väärtusega — mõlemat saab seejärel ise täpsustada (nt tegeliku pakkumise hinnaga). MPPT-arv on informatiivne (mitu suunda/stringi saab inverter sõltumatult jälgida) ega mõjuta allolevat arvutust otseselt. <b>Clippingu-kadu</b> on osa toodangust, mis läheb kaduma hetkedel, mil paneelide hetkevõimsus ületaks inverteri AC-piiri — see on arvutatud sinu tegeliku tunnipõhise (8760 tunni) tootmisprofiili ja valitud suundade/kalde põhjal, mitte lihtsustatud aastakeskmisena. Kuna mudel kasutab iga päeva jaoks sama selge-taeva kõverat (lihtsalt skaleerituna aastase keskmise toodanguni), on tegelikkuses kõige päikesepaisutumatel päevadel tipud tõenäoliselt mudelis näidatust kõrgemad — seega on siintoodud clippingu-kadu pigem alumine piir, mitte ülemine hinnang.
+      </p>
+
+      <hr class="section-divider">
       <div class="toggle-row">
         <span class="lbl">Lisa aku arvutusse</span>
         <label class="switch">
@@ -332,7 +373,7 @@
       <div id="batteryFields">
         <div class="field">
           <label>Aku maht <span class="val" id="v-battsize">7 kWh</span></label>
-          <input type="range" id="battsize" min="1" max="20" step="0.5" value="7">
+          <input type="range" id="battsize" min="1" max="100" step="0.5" value="7">
         </div>
         <div class="field">
           <label>Aku maksumus <span class="val" id="v-battcost">650 €/kWh</span></label>
@@ -343,6 +384,35 @@
           <input type="range" id="battnightshift" min="0" max="70" step="5" value="30">
         </div>
       </div>
+
+      <hr class="section-divider">
+      <p class="subtle-h">Muud päikesejaama loomise kulud</p>
+      <div class="field">
+        <label>Paigaldus (kinnitussüsteem, paneelide/aku füüsiline paigaldus) <span class="val" id="v-installCost">1500 €</span></label>
+        <input type="range" id="installCost" min="0" max="6000" step="50" value="1500">
+      </div>
+      <div class="field">
+        <label>Seadistamine (inverter, monitooring, EV-laadija sidumine) <span class="val" id="v-commissionCost">300 €</span></label>
+        <input type="range" id="commissionCost" min="0" max="2000" step="50" value="300">
+      </div>
+      <div class="field">
+        <label>Projekt (projekteerimine, deklaratsioon, audit) <span class="val" id="v-designCost">990 €</span></label>
+        <input type="range" id="designCost" min="0" max="2500" step="50" value="990">
+      </div>
+      <div class="field">
+        <label>Elektritööd (DC/AC kaablitööd, kilp) <span class="val" id="v-electricalCost">800 €</span></label>
+        <input type="range" id="electricalCost" min="0" max="4000" step="50" value="800">
+      </div>
+      <div class="field">
+        <label>Elektrilevi liitumistasud <span class="val" id="v-gridFee">615 €</span></label>
+        <input type="range" id="gridFee" min="0" max="3000" step="10" value="615">
+      </div>
+      <p class="helptext">
+        Vaikeväärtus (615 €) vastab Elektrilevi 01.08.2026 hinnakirja järgi olemasolevale liitumisele tootmistingimuse lisamisele kuni 15 kW võrku andmiseks (496 € + km). See eeldab, et jääd mikrotootja piiresse (võrku antav võimsus ≤ 15 kW) ja olemasolev liitumine/faasid sobivad muutmata kujul. Kui inverter suudab rohkem kui 15 kW võrku anda (sinul 20 kW), tasub paigaldajaga üle kontrollida, kas eksport seatakse tarkvaraliselt 15 kW-le (jääd mikrotootjaks) või mitte (kallim väiketootja menetlus, tagatisraha). Faasimuutuse, liitumispunkti nihutamise või liitumiskilbi vajadusel on tegelik tasu kõrgem — tõsta liugurit vastavalt oma pakkumisele.
+      </p>
+      <p class="helptext">
+        Need viis välja katavad kõik ühekordsed teenuse-/tööjõukulud, mis ei ole seotud otse paneelide, inverteri ega aku enda hinnaga (mis on eraldi sisestatavad ülal) — pane siia oma tegeliku pakkumiseread, kui need on teada.
+      </p>
 
       <hr class="section-divider">
       <p class="subtle-h">Omatarbimine (päevasest toodangust)</p>
@@ -442,7 +512,7 @@
         <div class="metric">
           <div class="label">Investeeringu suurus</div>
           <div class="value" id="m-investment">–</div>
-          <div class="sub" id="m-investment-sub">paneelid + aku, 100% sinu oma</div>
+          <div class="sub" id="m-investment-sub">paneelid + inverter + aku, 100% sinu oma</div>
         </div>
         <div class="metric">
           <div class="label">Sinu sääst 1. aastal</div>
@@ -497,7 +567,7 @@
       </div>
 
       <p class="note">
-        See on lihtsustatud hindamismudel, mille eesmärk on anda esialgne suunis, mitte täpne pakkumus. Mudel eeldab, et kogu päikesetoodang langeb päevase tariifi perioodi sisse ning et aku suudab osa päevasest ülejäägist nihutada öötariifi ajale. Kui teie leping arvestab kaalutud börsihinda, siis omatarbimine eemaldab odavaimad (keskpäevased) tunnid teie ostupildist, mistõttu ülejäänud ostetud energia keskmine hind tõuseb — seda mõju kirjeldab "jääkostu hinnatõus" liugur. See mõjutab kahte asja korraga: sinu tegelikku säästu (mudel arvestab seda juba maha) ning võimalikku naabri makset, kui tema arve arvutatakse sama tõusnud keskmise hinnaga (vaata kõrvutist "fikseeritud" vs "tõusnud" hinna stsenaariumit). Kumba hinda naabri arves kasutada, tuleb naabriga kirjalikult kokku leppida. Suurema täpsuse jaoks küsi pakkumust ja tarbimisandmete analüüsi paigaldajalt või elektrimüüjalt.
+        See on lihtsustatud hindamismudel, mille eesmärk on anda esialgne suunis, mitte täpne pakkumus. Mudel eeldab, et kogu päikesetoodang langeb päevase tariifi perioodi sisse ning et aku suudab osa päevasest ülejäägist nihutada öötariifi ajale. Kui teie leping arvestab kaalutud börsihinda, siis omatarbimine eemaldab odavaimad (keskpäevased) tunnid teie ostupildist, mistõttu ülejäänud ostetud energia keskmine hind tõuseb — seda mõju kirjeldab "jääkostu hinnatõus" liugur. See mõjutab kahte asja korraga: sinu tegelikku säästu (mudel arvestab seda juba maha) ning võimalikku naabri makset, kui tema arve arvutatakse sama tõusnud keskmise hinnaga (vaata kõrvutist "fikseeritud" vs "tõusnud" hinna stsenaariumit). Kumba hinda naabri arves kasutada, tuleb naabriga kirjalikult kokku leppida. Inverteri AC-võimsuse piirist tulenev clippingu-kadu on juba toodangu seest maha arvatud. Suurema täpsuse jaoks küsi pakkumust ja tarbimisandmete analüüsi paigaldajalt või elektrimüüjalt.
       </p>
     </div>
 
@@ -508,7 +578,9 @@
 <script>
 const ids = ['consumptionDay','consumptionNight','myDayUse','myNightUse',
   'baseyield','tilt','pvsizeA','azimuthA','pvcostA','pvsizeB','azimuthB','pvcostB',
+  'inverterAc','inverterCost',
   'battsize','battcost','battnightshift',
+  'installCost','commissionCost','designCost','electricalCost','gridFee',
   'sc-nobatt','sc-batt','energyDay','energyNight','networkDay','networkNight',
   'excise','renewfee','securityfee','balancingfee',
   'sellprice','priceUplift','escalation','maintenance','degradation','discount'];
@@ -517,6 +589,7 @@ ids.forEach(id => els[id] = document.getElementById(id));
 const hasBatteryEl = document.getElementById('hasBattery');
 const hasBlockBEl = document.getElementById('hasBlockB');
 const sharedMeterEl = document.getElementById('sharedMeter');
+const inverterModelEl = document.getElementById('inverterModel');
 const batteryFields = document.getElementById('batteryFields');
 const blockBFields = document.getElementById('blockBFields');
 const scBattField = document.getElementById('sc-batt-field');
@@ -525,6 +598,17 @@ const neighborSummary = document.getElementById('neighborSummary');
 
 const fmtEUR0 = new Intl.NumberFormat('et-EE', {style:'currency', currency:'EUR', maximumFractionDigits:0});
 const fmtNum = new Intl.NumberFormat('et-EE');
+
+// --- Inverter presets (approximate — adjust the sliders to match an actual quote) ---
+const INVERTER_PRESETS = {
+  deye15lv:  {ac:15, price:1700, mppt:2, note:'madalpinge (48V) akuga'},
+  deye20hv:  {ac:20, price:2200, mppt:2, note:'kõrgepinge akuga'},
+  sungrow15: {ac:15, price:2300, mppt:3, note:'kõrgepinge akuga'},
+  sungrow20: {ac:20, price:2700, mppt:3, note:'kõrgepinge akuga'},
+  solis15:   {ac:15, price:1900, mppt:3, note:'madalpinge (48V) akuga'},
+  huawei17:  {ac:17, price:2100, mppt:2, note:'madalpinge akuga'},
+  custom:    {ac:null, price:null, mppt:null, note:''}
+};
 
 // --- Orientation physics engine (solar position based, Estonia/Harju county) ---
 const SITE_LAT = 59.30, SITE_LON = 24.75;
@@ -600,16 +684,19 @@ function annualRelativeYield(compassAzimuth, tiltDeg){
   }
   return total;
 }
+const rawYieldCache = {};
+function rawAnnualYield(compassAzimuth, tiltDeg){
+  const key = Math.round(compassAzimuth)+'_'+Math.round(tiltDeg);
+  if (rawYieldCache[key]===undefined) rawYieldCache[key] = annualRelativeYield(compassAzimuth, tiltDeg);
+  return rawYieldCache[key];
+}
 const orientationCache = {};
 function orientationFactor(compassAzimuth, tiltDeg){
   const key = Math.round(compassAzimuth)+'_'+Math.round(tiltDeg);
   if (orientationCache[key]!==undefined) return orientationCache[key];
-  const southKey = '180_'+Math.round(tiltDeg);
-  if (orientationCache[southKey]===undefined){
-    orientationCache[southKey] = annualRelativeYield(180, tiltDeg);
-  }
-  const val = annualRelativeYield(compassAzimuth, tiltDeg);
-  const factor = val / orientationCache[southKey];
+  const south = rawAnnualYield(180, tiltDeg);
+  const val = rawAnnualYield(compassAzimuth, tiltDeg);
+  const factor = val / south;
   orientationCache[key] = factor;
   return factor;
 }
@@ -666,6 +753,48 @@ function timingFactor(compassAzimuth, tiltDeg){
   return val;
 }
 
+// --- Hourly profile (8760h/year) per orientation, used for inverter-clipping estimation ---
+const hourlyProfileCache = {};
+function getHourlyProfile(compassAzimuth, tiltDeg){
+  const key = Math.round(compassAzimuth)+'_'+Math.round(tiltDeg);
+  if (hourlyProfileCache[key]) return hourlyProfileCache[key];
+  const panelAs = compassAzimuth-180;
+  const year = 2026;
+  const arr = new Float64Array(365*24);
+  let idx = 0;
+  for (let d=0; d<365; d++){
+    const day = new Date(Date.UTC(year,0,1)+d*86400000);
+    const month = day.getUTCMonth(), date = day.getUTCDate();
+    for (let h=0; h<24; h++){
+      const {elev, As} = sunPosition(year, month, date, h);
+      arr[idx] = elev>0 ? poaFactor(elev, As, panelAs, tiltDeg) : 0;
+      idx++;
+    }
+  }
+  hourlyProfileCache[key] = arr;
+  return arr;
+}
+// Returns the fraction (0–1) of combined Block A + Block B annual production that would be
+// clipped away by an inverter whose AC output is capped at acCapKw.
+function clippingFraction(pvSizeA, azimuthA, pvSizeB, azimuthB, tiltDeg, yieldA, yieldB, acCapKw){
+  if (!(acCapKw > 0)) return 0;
+  const profA = getHourlyProfile(azimuthA, tiltDeg);
+  const needB = pvSizeB > 0;
+  const profB = needB ? getHourlyProfile(azimuthB, tiltDeg) : null;
+  let sumA = 0, sumB = 0;
+  for (let i=0;i<profA.length;i++) sumA += profA[i];
+  if (needB) for (let i=0;i<profB.length;i++) sumB += profB[i];
+  const scaleA = sumA>0 ? (pvSizeA*yieldA)/sumA : 0;
+  const scaleB = (needB && sumB>0) ? (pvSizeB*yieldB)/sumB : 0;
+  let totalBefore = 0, totalAfter = 0;
+  for (let i=0;i<profA.length;i++){
+    const p = profA[i]*scaleA + (needB ? profB[i]*scaleB : 0);
+    totalBefore += p;
+    totalAfter += Math.min(p, acCapKw);
+  }
+  return totalBefore>0 ? Math.max(0, (totalBefore-totalAfter)/totalBefore) : 0;
+}
+
 let cashflowChart, balanceChart;
 
 function updateLabels(){
@@ -688,9 +817,16 @@ function updateLabels(){
   const factB = orientationFactor(azB, tiltVal);
   const timeB = timingFactor(azB, tiltVal);
   document.getElementById('v-azimuthB').textContent = `${azB}° (${compassName(azB)}) — ${Math.round(factB*100)}% toodangut, ${timeB>=1?'+':''}${Math.round((timeB-1)*100)}% hinnategur`;
+  document.getElementById('v-inverterAc').textContent = (+els.inverterAc.value) + ' kW';
+  document.getElementById('v-inverterCost').textContent = fmtNum.format(+els.inverterCost.value) + ' €';
   document.getElementById('v-battsize').textContent = els.battsize.value + ' kWh';
   document.getElementById('v-battcost').textContent = fmtNum.format(+els.battcost.value) + ' €/kWh';
   document.getElementById('v-battnightshift').textContent = els.battnightshift.value + ' %';
+  document.getElementById('v-installCost').textContent = fmtNum.format(+els.installCost.value) + ' €';
+  document.getElementById('v-commissionCost').textContent = fmtNum.format(+els.commissionCost.value) + ' €';
+  document.getElementById('v-designCost').textContent = fmtNum.format(+els.designCost.value) + ' €';
+  document.getElementById('v-electricalCost').textContent = fmtNum.format(+els.electricalCost.value) + ' €';
+  document.getElementById('v-gridFee').textContent = fmtNum.format(+els.gridFee.value) + ' €';
   document.getElementById('v-sc-nobatt').textContent = els['sc-nobatt'].value + ' %';
   document.getElementById('v-sc-batt').textContent = els['sc-batt'].value + ' %';
   document.getElementById('v-energyDay').textContent = (+els.energyDay.value).toFixed(2) + ' €/kWh';
@@ -732,6 +868,12 @@ function calculate(){
   const yieldB = baseYield * orientationFactor(azimuthB, tiltVal);
   const timingFactorB = timingFactor(azimuthB, tiltVal);
   const pvSize = pvSizeA + pvSizeB;
+
+  const inverterAc = +els.inverterAc.value;
+  const inverterCost = +els.inverterCost.value;
+  const inverterPreset = INVERTER_PRESETS[inverterModelEl.value];
+  const clipFrac = clippingFraction(pvSizeA, azimuthA, pvSizeB, azimuthB, tiltVal, yieldA, yieldB, inverterAc);
+
   const hasBattery = hasBatteryEl.checked;
   const battSize = hasBattery ? +els.battsize.value : 0;
   const battCostPerKwh = +els.battcost.value;
@@ -759,8 +901,15 @@ function calculate(){
   sharedMeterFields.style.display = shared ? 'block' : 'none';
   neighborSummary.style.display = shared ? 'grid' : 'none';
 
+  const installCost = +els.installCost.value;
+  const commissionCost = +els.commissionCost.value;
+  const designCost = +els.designCost.value;
+  const electricalCost = +els.electricalCost.value;
+  const gridFee = +els.gridFee.value;
+  const otherCosts = installCost + commissionCost + designCost + electricalCost + gridFee;
+
   const selfConsumptionShare = hasBattery ? scBatt : scNoBatt;
-  const totalInvestment = pvSizeA * pvCostA + pvSizeB * pvCostB + battSize * battCostPerKwh;
+  const totalInvestment = pvSizeA * pvCostA + pvSizeB * pvCostB + battSize * battCostPerKwh + inverterCost + otherCosts;
 
   const years = 25;
   let cumulative = 0;
@@ -777,11 +926,11 @@ function calculate(){
     const degFactor = Math.pow(1 - degradation, y - 1);
     const prodA_y = pvSizeA * yieldA * degFactor;
     const prodB_y = pvSizeB * yieldB * degFactor;
-    const production = prodA_y + prodB_y;
+    const production = (prodA_y + prodB_y) * (1 - clipFrac);
 
     let daySelfConsumed = production * selfConsumptionShare;
     daySelfConsumed = Math.min(daySelfConsumed, consumptionDay);
-    const shareA = production > 0 ? prodA_y / production : 0;
+    const shareA = production > 0 ? (prodA_y*(1-clipFrac)) / production : 0;
     const selfConsumedA = daySelfConsumed * shareA;
     const selfConsumedB = daySelfConsumed - selfConsumedA;
 
@@ -849,7 +998,7 @@ function calculate(){
   const neighborDiff = neighborPaymentFloating - neighborPaymentFrozen;
 
   document.getElementById('m-investment').textContent = fmtEUR0.format(totalInvestment);
-  document.getElementById('m-investment-sub').textContent = `${pvSize.toFixed(1)} kWp paneelid (${pvSizeA}+${hasBlockB?pvSizeB:0} kWp)` + (hasBattery ? ` + ${battSize} kWh aku` : ' (aku kaasamata)') + ', 100% sinu oma';
+  document.getElementById('m-investment-sub').textContent = `${pvSize.toFixed(1)} kWp paneelid (${pvSizeA}+${hasBlockB?pvSizeB:0} kWp) + ${inverterAc} kW inverter` + (hasBattery ? ` + ${battSize} kWh aku` : ' (aku kaasamata)') + ` + ${fmtEUR0.format(otherCosts)} muud kulud, 100% sinu oma`;
   document.getElementById('m-savings1').textContent = fmtEUR0.format(Math.max(year1Savings,0));
   document.getElementById('m-payback').textContent = paybackYear ? paybackYear.toFixed(1) + ' aastat' : '> 25 aastat';
   document.getElementById('m-payback').className = 'value ' + (paybackYear && paybackYear <= 15 ? 'good' : (paybackYear ? '' : 'warn'));
@@ -861,6 +1010,14 @@ function calculate(){
   document.getElementById('m-neighbor-floating').textContent = fmtEUR0.format(neighborPaymentFloating);
   document.getElementById('m-neighbor-diff').textContent = (neighborDiff >= 0 ? '+' : '') + fmtEUR0.format(neighborDiff);
   document.getElementById('m-neighbor-diff').style.color = neighborDiff > 0 ? '#D85A30' : '#1D9E75';
+
+  const dcAcRatio = inverterAc > 0 ? (pvSize / inverterAc) : 0;
+  const clipLossKwh = (pvSizeA*yieldA + pvSizeB*yieldB) * clipFrac;
+  const mpptText = inverterPreset && inverterPreset.mppt ? `${inverterPreset.mppt} MPPT` : 'MPPT arv sõltub valitud mudelist';
+  document.getElementById('inverterInfo').innerHTML =
+    `<span>DC/AC suhe: <b>${dcAcRatio.toFixed(2)}</b></span>` +
+    `<span>${mpptText}</span>` +
+    `<span>Clippingu-kadu: <b>${fmtNum.format(Math.round(clipLossKwh))} kWh/a</b> (${(clipFrac*100).toFixed(1)}%)</span>`;
 
   drawCashflowChart(labels, cumSeries);
   drawBalanceChart(year1DaySelfConsumed, year1NightShifted, year1Exported, year1Bought);
@@ -962,6 +1119,14 @@ ids.forEach(id => els[id].addEventListener('input', calculate));
 hasBatteryEl.addEventListener('change', calculate);
 hasBlockBEl.addEventListener('change', calculate);
 sharedMeterEl.addEventListener('change', calculate);
+inverterModelEl.addEventListener('change', () => {
+  const preset = INVERTER_PRESETS[inverterModelEl.value];
+  if (preset && preset.ac !== null){
+    els.inverterAc.value = preset.ac;
+    els.inverterCost.value = preset.price;
+  }
+  calculate();
+});
 
 calculate();
 </script>
