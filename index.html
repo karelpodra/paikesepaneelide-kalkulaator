@@ -246,15 +246,15 @@
       <p class="subtle-h">Ühine tarbimine (mõlema leibkonna peale, sama arvesti taga, kWh aastas)</p>
       <div class="field">
         <label>Ühine päevane tarbimine <span class="val" id="v-consumptionDay">7562 kWh/a</span></label>
-        <input type="range" id="consumptionDay" min="500" max="12000" step="100" value="7562">
+        <input type="range" id="consumptionDay" min="500" max="12000" step="1" value="7562">
       </div>
       <div class="field">
         <label>Ühine öine tarbimine <span class="val" id="v-consumptionNight">10750 kWh/a</span></label>
-        <input type="range" id="consumptionNight" min="500" max="15000" step="100" value="10750">
+        <input type="range" id="consumptionNight" min="500" max="15000" step="1" value="10750">
       </div>
       <p class="helptext" style="margin-top:-.4rem;">
         Need kaks väärtust määravad aastase <b>kogumahu</b> (nende summa). Seda, kui suur osa igas konkreetses kuus on päevane vs öine, juhib nüüd allpool olev tegelikel tunnipõhistel mõõtmistel (2025-08 kuni 2026-10, ~27 500 tundi, tööpäeviti 7-22 = päev) põhinev kuupõhine jaotus — kuude vahel liigutades need kaks liugurit ei muuda enam otse suhet, ainult kogumahtu.
-      </div>
+      </p>
 
       <hr class="section-divider">
       <div class="toggle-row">
@@ -400,7 +400,7 @@
       </div>
       <div class="field">
         <label>Projekt (projekteerimine, deklaratsioon, audit) <span class="val" id="v-designCost">990 €</span></label>
-        <input type="range" id="designCost" min="0" max="2500" step="50" value="990">
+        <input type="range" id="designCost" min="0" max="2500" step="1" value="990">
       </div>
       <div class="field">
         <label>Elektritööd (DC/AC kaablitööd, kilp) <span class="val" id="v-electricalCost">800 €</span></label>
@@ -408,7 +408,7 @@
       </div>
       <div class="field">
         <label>Elektrilevi liitumistasud <span class="val" id="v-gridFee">615 €</span></label>
-        <input type="range" id="gridFee" min="0" max="3000" step="10" value="615">
+        <input type="range" id="gridFee" min="0" max="3000" step="1" value="615">
       </div>
       <p class="helptext">
         Vaikeväärtus (615 €) vastab Elektrilevi 01.08.2026 hinnakirja järgi olemasolevale liitumisele tootmistingimuse lisamisele kuni 15 kW võrku andmiseks (496 € + km). See eeldab, et jääd mikrotootja piiresse (võrku antav võimsus ≤ 15 kW) ja olemasolev liitumine/faasid sobivad muutmata kujul. Kui inverter suudab rohkem kui 15 kW võrku anda (sinul 20 kW), tasub paigaldajaga üle kontrollida, kas eksport seatakse tarkvaraliselt 15 kW-le (jääd mikrotootjaks) või mitte (kallim väiketootja menetlus, tagatisraha). Faasimuutuse, liitumispunkti nihutamise või liitumiskilbi vajadusel on tegelik tasu kõrgem — tõsta liugurit vastavalt oma pakkumisele.
