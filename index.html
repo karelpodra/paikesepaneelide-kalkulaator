@@ -245,12 +245,15 @@
 
       <p class="subtle-h">Ühine tarbimine (mõlema leibkonna peale, sama arvesti taga, kWh aastas)</p>
       <div class="field">
-        <label>Ühine päevane tarbimine <span class="val" id="v-consumptionDay">6600 kWh/a</span></label>
-        <input type="range" id="consumptionDay" min="500" max="10000" step="100" value="6600">
+        <label>Ühine päevane tarbimine <span class="val" id="v-consumptionDay">7562 kWh/a</span></label>
+        <input type="range" id="consumptionDay" min="500" max="12000" step="100" value="7562">
       </div>
       <div class="field">
-        <label>Ühine öine tarbimine <span class="val" id="v-consumptionNight">10000 kWh/a</span></label>
-        <input type="range" id="consumptionNight" min="500" max="15000" step="100" value="10000">
+        <label>Ühine öine tarbimine <span class="val" id="v-consumptionNight">10750 kWh/a</span></label>
+        <input type="range" id="consumptionNight" min="500" max="15000" step="100" value="10750">
+      </div>
+      <p class="helptext" style="margin-top:-.4rem;">
+        Need kaks väärtust määravad aastase <b>kogumahu</b> (nende summa). Seda, kui suur osa igas konkreetses kuus on päevane vs öine, juhib nüüd allpool olev tegelikel tunnipõhistel mõõtmistel (2025-08 kuni 2026-10, ~27 500 tundi, tööpäeviti 7-22 = päev) põhinev kuupõhine jaotus — kuude vahel liigutades need kaks liugurit ei muuda enam otse suhet, ainult kogumahtu.
       </div>
 
       <hr class="section-divider">
@@ -567,7 +570,7 @@
       </div>
 
       <p class="note">
-        See on lihtsustatud hindamismudel, mille eesmärk on anda esialgne suunis, mitte täpne pakkumus. Mudel eeldab, et kogu päikesetoodang langeb päevase tariifi perioodi sisse ning et aku suudab osa päevasest ülejäägist nihutada öötariifi ajale. Kui teie leping arvestab kaalutud börsihinda, siis omatarbimine eemaldab odavaimad (keskpäevased) tunnid teie ostupildist, mistõttu ülejäänud ostetud energia keskmine hind tõuseb — seda mõju kirjeldab "jääkostu hinnatõus" liugur. See mõjutab kahte asja korraga: sinu tegelikku säästu (mudel arvestab seda juba maha) ning võimalikku naabri makset, kui tema arve arvutatakse sama tõusnud keskmise hinnaga (vaata kõrvutist "fikseeritud" vs "tõusnud" hinna stsenaariumit). Kumba hinda naabri arves kasutada, tuleb naabriga kirjalikult kokku leppida. Inverteri AC-võimsuse piirist tulenev clippingu-kadu on juba toodangu seest maha arvatud. Suurema täpsuse jaoks küsi pakkumust ja tarbimisandmete analüüsi paigaldajalt või elektrimüüjalt.
+        See on hindamismudel, mille eesmärk on anda suunis, mitte täpne pakkumus. Tarbimise kuupõhine jaotus ja iga kuu päeva/öö suhe põhinevad Kaljula tee 28 ühise mõõtepunkti tegelikel tunnipõhistel mõõtmistel (2025-08 kuni 2026-10); tootmine ja omatarbimine arvutatakse eraldi iga kuu kohta, nii et suve ülejääk ja talve puudujääk ei "keskmistu" enam kokku. Aku suudab nihutada osa selle KUU enda päevasest ülejäägist öötariifi ajale, kuu enda öötarbimise piires. Kui teie leping arvestab kaalutud börsihinda, siis omatarbimine eemaldab odavaimad (keskpäevased) tunnid teie ostupildist, mistõttu ülejäänud ostetud energia keskmine hind tõuseb — seda mõju kirjeldab "jääkostu hinnatõus" liugur. See mõjutab kahte asja korraga: sinu tegelikku säästu (mudel arvestab seda juba maha) ning võimalikku naabri makset, kui tema arve arvutatakse sama tõusnud keskmise hinnaga (vaata kõrvutist "fikseeritud" vs "tõusnud" hinna stsenaariumit). Kumba hinda naabri arves kasutada, tuleb naabriga kirjalikult kokku leppida. Inverteri AC-võimsuse piirist tulenev clippingu-kadu on juba toodangu seest maha arvatud. Suurema täpsuse jaoks küsi pakkumust ja tarbimisandmete analüüsi paigaldajalt või elektrimüüjalt.
       </p>
     </div>
 
@@ -753,6 +756,19 @@ function timingFactor(compassAzimuth, tiltDeg){
   return val;
 }
 
+// --- Real monthly consumption shape (Kaljula tee 28 ühine mõõtepunkt, 01.09.2025–01.09.2026,
+// 366 päeva tegelikke andmeid). Jaotus Jaan..Dets, summa = 1. Kuu SISENE päeva/öö jaotus
+// kasutab endiselt ülal olevat Sinu-sisestatud ühtlast suhet (consumptionDay/consumptionNight),
+// kuna failis on ainult ööpäeva kogusumma, mitte tariifiperioodide lõikes. ---
+const MONTHLY_CONSUMPTION_SHARE = [0.12611,0.11100,0.09416,0.08902,0.07622,0.05916,
+                                    0.05530,0.05807,0.06266,0.07437,0.08875,0.10518];
+
+// Real monthly DAY-tariff share (tööpäeviti 07:00–22:00 = päev, ülejäänu = öö), arvutatud
+// ~27 500 tunnise mõõtmise pealt (2025-08 kuni 2026-10, lüngad ainult üksikutel kuu
+// viimastel päevadel). Jaan..Dets.
+const MONTHLY_DAY_RATIO = [0.4307,0.4371,0.3905,0.4037,0.3964,0.4138,
+                            0.4671,0.4224,0.4582,0.4182,0.3804,0.4030];
+
 // --- Hourly profile (8760h/year) per orientation, used for inverter-clipping estimation ---
 const hourlyProfileCache = {};
 function getHourlyProfile(compassAzimuth, tiltDeg){
@@ -774,24 +790,47 @@ function getHourlyProfile(compassAzimuth, tiltDeg){
   hourlyProfileCache[key] = arr;
   return arr;
 }
+// Returns 12 entries (Jan..Dec), each {a, b, before, after}: block A and block B production
+// (uncapped, kWh) and the combined total before/after the inverter's AC cap, for one year at
+// the given (already degradation-adjusted) yields. Reused for both clipping and the monthly
+// self-consumption model so there is one hourly-resolution code path, not two.
+function getMonthlyProduction(pvSizeA, azimuthA, pvSizeB, azimuthB, tiltDeg, yieldA, yieldB, acCapKw){
+  const profA = getHourlyProfile(azimuthA, tiltDeg);
+  const needB = pvSizeB > 0;
+  const profB = needB ? getHourlyProfile(azimuthB, tiltDeg) : null;
+  let sumAraw = 0, sumBraw = 0;
+  for (let i=0;i<profA.length;i++) sumAraw += profA[i];
+  if (needB) for (let i=0;i<profB.length;i++) sumBraw += profB[i];
+  const scaleA = sumAraw>0 ? (pvSizeA*yieldA)/sumAraw : 0;
+  const scaleB = (needB && sumBraw>0) ? (pvSizeB*yieldB)/sumBraw : 0;
+  const cap = acCapKw>0 ? acCapKw : Infinity;
+
+  const daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
+  const monthly = [];
+  let idx = 0;
+  for (let m=0; m<12; m++){
+    let a=0, b=0, before=0, after=0;
+    const hours = daysInMonth[m]*24;
+    for (let h=0; h<hours; h++){
+      const pa = profA[idx]*scaleA;
+      const pb = needB ? profB[idx]*scaleB : 0;
+      a += pa; b += pb;
+      const combined = pa+pb;
+      before += combined;
+      after += Math.min(combined, cap);
+      idx++;
+    }
+    monthly.push({a, b, before, after});
+  }
+  return monthly;
+}
 // Returns the fraction (0–1) of combined Block A + Block B annual production that would be
 // clipped away by an inverter whose AC output is capped at acCapKw.
 function clippingFraction(pvSizeA, azimuthA, pvSizeB, azimuthB, tiltDeg, yieldA, yieldB, acCapKw){
   if (!(acCapKw > 0)) return 0;
-  const profA = getHourlyProfile(azimuthA, tiltDeg);
-  const needB = pvSizeB > 0;
-  const profB = needB ? getHourlyProfile(azimuthB, tiltDeg) : null;
-  let sumA = 0, sumB = 0;
-  for (let i=0;i<profA.length;i++) sumA += profA[i];
-  if (needB) for (let i=0;i<profB.length;i++) sumB += profB[i];
-  const scaleA = sumA>0 ? (pvSizeA*yieldA)/sumA : 0;
-  const scaleB = (needB && sumB>0) ? (pvSizeB*yieldB)/sumB : 0;
+  const monthly = getMonthlyProduction(pvSizeA, azimuthA, pvSizeB, azimuthB, tiltDeg, yieldA, yieldB, acCapKw);
   let totalBefore = 0, totalAfter = 0;
-  for (let i=0;i<profA.length;i++){
-    const p = profA[i]*scaleA + (needB ? profB[i]*scaleB : 0);
-    totalBefore += p;
-    totalAfter += Math.min(p, acCapKw);
-  }
+  monthly.forEach(mo => { totalBefore += mo.before; totalAfter += mo.after; });
   return totalBefore>0 ? Math.max(0, (totalBefore-totalAfter)/totalBefore) : 0;
 }
 
@@ -922,25 +961,44 @@ function calculate(){
   let year1UpliftedDayPrice = 0;
   let year1Savings = 0;
 
+  const annualConsumptionTotal = consumptionDay + consumptionNight;
+
   for (let y = 1; y <= years; y++){
     const degFactor = Math.pow(1 - degradation, y - 1);
-    const prodA_y = pvSizeA * yieldA * degFactor;
-    const prodB_y = pvSizeB * yieldB * degFactor;
-    const production = (prodA_y + prodB_y) * (1 - clipFrac);
 
-    let daySelfConsumed = production * selfConsumptionShare;
-    daySelfConsumed = Math.min(daySelfConsumed, consumptionDay);
-    const shareA = production > 0 ? (prodA_y*(1-clipFrac)) / production : 0;
-    const selfConsumedA = daySelfConsumed * shareA;
-    const selfConsumedB = daySelfConsumed - selfConsumedA;
+    // Monthly-resolved production (this year's degraded yield) vs. the real monthly
+    // consumption shape — self-consumption, night-shift and export are each capped against
+    // that MONTH's own consumption, not a single annual pool, so summer surplus and winter
+    // shortfall are no longer averaged away.
+    const monthlyProd = getMonthlyProduction(pvSizeA, azimuthA, pvSizeB, azimuthB, tiltVal,
+                                              yieldA*degFactor, yieldB*degFactor, inverterAc);
 
-    let remainingProd = Math.max(production - daySelfConsumed, 0);
-    let nightShifted = remainingProd * battNightShift;
-    nightShifted = Math.min(nightShifted, consumptionNight);
+    let daySelfConsumed = 0, nightShifted = 0, exported = 0, dayBought = 0, nightBought = 0;
+    let selfConsumedA = 0, selfConsumedB = 0;
 
-    const exported = Math.max(remainingProd - nightShifted, 0);
-    const dayBought = Math.max(consumptionDay - daySelfConsumed, 0);
-    const nightBought = Math.max(consumptionNight - nightShifted, 0);
+    for (let m = 0; m < 12; m++){
+      const production_m = monthlyProd[m].after;
+      const monthConsumptionTotal = annualConsumptionTotal * MONTHLY_CONSUMPTION_SHARE[m];
+      const monthConsumptionDay = monthConsumptionTotal * MONTHLY_DAY_RATIO[m];
+      const monthConsumptionNight = monthConsumptionTotal * (1 - MONTHLY_DAY_RATIO[m]);
+
+      let daySelfConsumed_m = production_m * selfConsumptionShare;
+      daySelfConsumed_m = Math.min(daySelfConsumed_m, monthConsumptionDay);
+      const totalBeforeClip_m = monthlyProd[m].a + monthlyProd[m].b;
+      const shareA_m = totalBeforeClip_m > 0 ? monthlyProd[m].a / totalBeforeClip_m : 0;
+
+      let remainingProd_m = Math.max(production_m - daySelfConsumed_m, 0);
+      let nightShifted_m = remainingProd_m * battNightShift;
+      nightShifted_m = Math.min(nightShifted_m, monthConsumptionNight);
+
+      daySelfConsumed += daySelfConsumed_m;
+      nightShifted += nightShifted_m;
+      exported += Math.max(remainingProd_m - nightShifted_m, 0);
+      dayBought += Math.max(monthConsumptionDay - daySelfConsumed_m, 0);
+      nightBought += Math.max(monthConsumptionNight - nightShifted_m, 0);
+      selfConsumedA += daySelfConsumed_m * shareA_m;
+      selfConsumedB += daySelfConsumed_m * (1 - shareA_m);
+    }
 
     const escFactor = Math.pow(1 + escalation, y - 1);
     const energyDay_y = energyDay0 * escFactor;
