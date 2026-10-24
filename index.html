@@ -415,7 +415,7 @@
           </label>
         </div>
         <p class="helptext" style="margin-top:-.5rem;">
-          Kui lubatud, laeb aku end (ka võrgust) alati, kui tunni tegelik börsihind on selle päeva mediaanist odavam, ja müüb/kasutab salvestatut, kui hind on mediaanist kallim — iga kuu kahe tüüpilise päeva (tööpäev+nädalavahetus) sees arvutatakse see tegelike tunnihindade järgi, nii et aku saab vajadusel teha ka <b>mitu tsüklit ööpäevas</b>, kui hind kõigub mitu korda üles-alla. Kui sinu inverter/paigaldus seda ei toeta, lülita välja — siis laeb aku end ainult päikese ülejäägist ja kasutab seda ainult omatarbeks.
+          Kui lubatud, ostab aku päeva odavaimal kolmandikul võrgust varu ja kasutab seda seejärel <b>majanduslikult kõige kasulikumal viisil</b> — olenevalt tunnist kas oma tarbimise katteks (väldib täishinda energia+võrgutasu+maksudega), müügiks võrku (börsihind), või mõlemaks korraga samal tunnil —, aga ainult siis, kui see on pärast ringtõhususe kadu tegelikult kasumlik võrreldes sellega, mis selle varu eest maksti. Iga kuu kahe tüüpilise päeva (tööpäev+nädalavahetus) sees arvutatakse see tegelike tunnihindade järgi, nii et aku saab vajadusel teha ka <b>mitu tsüklit ööpäevas</b>. Kui sinu inverter/paigaldus seda ei toeta, lülita välja — siis laeb aku end ainult päikese ülejäägist.
         </p>
         <div class="field">
           <label>Peakaitse</label>
@@ -663,6 +663,31 @@
             </tr>
           </thead>
           <tbody id="monthDetailTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:1.2rem;">
+        <h2>Aku kokkuvõte — valitud kuu</h2>
+        <div style="position:relative;height:320px;">
+          <canvas id="batteryDetailChart" role="img" aria-label="Joonis näitab valitud kuu tüüpilise tööpäeva ja nädalavahetuse tunnipõhist aku laadimist, tühjendamist, tarbimise katet ja võrku müüki"></canvas>
+        </div>
+        <div class="breakdown">
+          <span class="legend-item"><span class="dot" style="background:#009DE0"></span>Laetud</span>
+          <span class="legend-item"><span class="dot" style="background:#7F77DD"></span>Tühjendatud (kokku)</span>
+          <span class="legend-item"><span class="dot" style="background:#042C40"></span>Tarbitud akust</span>
+          <span class="legend-item"><span class="dot" style="background:#1D9E75"></span>Müüdud akust võrku</span>
+        </div>
+        <p class="helptext" style="margin-top:.9rem;">
+          Sama kuu ja sama T0–T23/N0–N23 tunnijaotus, mis ülal — "Tühjendatud" on tarbimise katte ja võrku müügi summa (kuhu salvestatud energia tervikuna läks); need kaks viimast näitavad jaotust.
+        </p>
+        <table style="width:100%; border-collapse:collapse; margin-top:1.1rem; font-size:.85rem;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--line);">
+              <th style="text-align:left; padding:.5rem 0; color:var(--ink-soft); font-weight:600;">Aku koondarv — kuu kohta</th>
+              <th style="text-align:right; padding:.5rem 0; color:var(--ink-soft); font-weight:600;">Kogus</th>
+            </tr>
+          </thead>
+          <tbody id="batteryDetailTableBody"></tbody>
         </table>
       </div>
     </div>
@@ -1025,12 +1050,15 @@ function clippingFraction(pvSizeA, azimuthA, pvSizeB, azimuthB, tiltDeg, yieldA,
   return totalBefore>0 ? Math.max(0, (totalBefore-totalAfter)/totalBefore) : 0;
 }
 
-// Simulates one representative 24h day: direct solar self-consumption first, then battery
-// charges from any leftover solar surplus, then (if allowed) tops up remaining room from the
-// grid at the cheapest (night-tariff) hours, then discharges at the priciest (day-tariff) hours
-// first — solar-sourced charge is drawn down before grid-sourced charge, so the two are credited
-// separately downstream (real self-consumption vs. price arbitrage are not the same thing).
-function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, socSolarStart, socGridStart, battCapacity, roundtripEff, allowGridCharge, allowExport, inverterAcCap, powerCapKw){
+// Simulates one representative 24h day. Solar self-consumption always happens first. For the
+// battery's grid-charged stock, EVERY use (serving a later deficit, or exporting) is gated by a
+// genuine profitability check against what that stock actually cost to acquire — not by a fixed
+// rule about origin. So the same kWh can legitimately end up: bought cheap and later consumed;
+// bought cheap, partly consumed and partly exported in the same hour; or bought cheap and only
+// ever exported — whichever the hour's prices actually make worthwhile, exactly as it would for
+// someone manually chasing the best use of stored energy. Free solar-origin stock has no such
+// gate (any positive price already beats "free"), so it is always used for load first, as before.
+function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, isDay_h, networkDayRate, networkNightRate, flatFees, VAT, socSolarStart, socGridStart, socGridCostStart, battCapacity, roundtripEff, allowGridCharge, allowExport, inverterAcCap, powerCapKw){
   const n = 24;
   const cap = inverterAcCap>0 ? inverterAcCap : Infinity;
   const pcap = powerCapKw>0 ? powerCapKw : Infinity; // peakaitse-derived max kW crossing the meter per hour
@@ -1040,17 +1068,21 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, socSo
   const netLoad = cons_h.map((c,i)=>c-directSelf[i]);
   const surplus = prod.map((p,i)=>p-directSelf[i]);
 
-  // Multi-cycle thresholds: charge only in the day's cheapest third, export/discharge only in
-  // its priciest third — a day with two cheap troughs and two pricey peaks (common with 15-min
-  // Baltic pricing) naturally produces two charge/discharge cycles. The gap between the two
-  // thresholds (vs. a single median) is a deliberate safety margin: on a low-volatility day the
-  // top and bottom thirds can still be close together, but splitting at the median alone would
-  // trade on whatever tiny gap remains even when it does not cover the round-trip loss.
+  // What one kWh is actually worth this hour, from two different places: avoiding a purchase
+  // (full retail — energy + network fee for this hour's own tariff period + flat fees + VAT) is
+  // worth more than selling it (raw spot only, no fee/tax relief) — so serving your own deficit
+  // is preferred over exporting whenever both are on the table, same as a rational owner would.
+  const buyValue_h = priceShape_h.map((p,i)=>(p + (isDay_h[i]?networkDayRate:networkNightRate) + flatFees)*(1+VAT));
+  const sellValue_h = priceShape_h;
+
+  // Charging still uses a simple "cheapest third of the day" heuristic to decide when to acquire
+  // stock at all (a cap on how much gets bought in the first place); but whether any of that
+  // stock then gets USED — for load, for export, or both — is decided purely by the profitability
+  // check below against its own weighted-average cost, not by a matching "priciest third" rule.
   const sortedPrices = [...priceShape_h].sort((a,b)=>a-b);
   const lowThreshold = sortedPrices[7];
-  const highThreshold = sortedPrices[16];
 
-  let socSolar = socSolarStart, socGrid = socGridStart;
+  let socSolar = socSolarStart, socGrid = socGridStart, gridCost = socGridCostStart || 0;
   const solarCharged = new Array(n).fill(0);
   const gridCharged = new Array(n).fill(0);
   const dischargeFromSolar = new Array(n).fill(0); // for load (counts as real PV self-consumption)
@@ -1069,16 +1101,25 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, socSo
     const cSolar = Math.min(s, room);
     socSolar += cSolar; s -= cSolar;
 
-    // 2. Serve local load from SOLAR-origin charge only. Grid-origin charge is reserved
-    // exclusively for export arbitrage below — using grid-bought energy to serve load you could
-    // otherwise just buy directly, at a similar price, would only burn round-trip efficiency for
-    // no benefit. (This was the bug an earlier test caught: repeated charge→immediately-drain-for-
-    // load→recharge churn was losing money on the round-trip loss with no offsetting gain.)
+    // 2a. Serve local load from SOLAR-origin charge first — it is free, so any positive price
+    // already justifies using it; no profitability check needed.
     const availOutSolar = socSolar*roundtripEff;
     if (nl > 0.0001 && availOutSolar > 0.0001){
       const take = Math.min(nl, availOutSolar);
       socSolar -= take/roundtripEff;
       dischargeFromSolar[h] += take;
+      nl -= take;
+    }
+
+    // 2b. If a deficit remains, grid-origin stock MAY serve it too — but only when doing so is
+    // actually worth more than what that stock cost to acquire (after the round-trip loss).
+    // Otherwise just buy this hour's remainder directly; routing it through the battery for no
+    // price gain would only waste efficiency (the bug an earlier test caught).
+    if (nl > 0.0001 && socGrid > 0.0001 && buyValue_h[h] > gridCost/roundtripEff){
+      const availOutGrid = socGrid*roundtripEff;
+      const take = Math.min(nl, availOutGrid);
+      socGrid -= take/roundtripEff;
+      dischargeFromGrid[h] += take;
       nl -= take;
     }
 
@@ -1089,15 +1130,21 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, socSo
     exportArr[h] += eNow; exportFromSolar[h] += eNow; meterRoom -= eNow;
     curtailed[h] = s - eNow;
 
-    // 4. Discretionary arbitrage for whatever meter headroom and battery room/charge remain:
-    // cheap hour (below today's median) → top up from the grid; pricey hour (above median) →
-    // sell stored charge. Both are capped by the same fuse headroom used above.
+    // 4a. Acquire cheap grid stock when the hour is in the day's cheapest third (a cap on how
+    // much gets bought at all; whether it is ever profitably used is decided where it's spent).
     if (allowGridCharge && priceShape_h[h] < lowThreshold){
       const room2 = battCapacity - (socSolar+socGrid);
       const c = Math.min(room2, pcap);
-      gridCharged[h] += c; socGrid += c;
+      if (c > 0.0001){
+        gridCost = (socGrid*gridCost + c*priceShape_h[h]) / (socGrid+c); // weighted-average cost
+        gridCharged[h] += c; socGrid += c;
+      }
     }
-    if (allowExport && priceShape_h[h] > highThreshold && meterRoom > 0.0001){
+    // 4b. Export any remaining grid-origin stock that is still profitable to sell this hour —
+    // the same stock that just covered a deficit above can also be partly exported in the same
+    // hour if there's enough of it and both are worthwhile; this is exactly the "buy once, use
+    // for both" case.
+    if (allowExport && meterRoom > 0.0001 && socGrid > 0.0001 && sellValue_h[h] > gridCost/roundtripEff){
       const availOut2 = socGrid*roundtripEff;
       let e2 = Math.min(availOut2, meterRoom);
       socGrid -= e2/roundtripEff;
@@ -1113,7 +1160,8 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, socSo
   }
 
   return {directSelf, exportArr, exportFromSolar, exportFromGrid, dischargeFromSolar, dischargeFromGrid,
-          gridCharged, gridBought, curtailed, socSolarEnd: socSolar, socGridEnd: socGrid};
+          solarCharged, gridCharged, gridBought, curtailed,
+          socSolarEnd: socSolar, socGridEnd: socGrid, socGridCostEnd: gridCost};
 }
 
 let cashflowChart, balanceChart;
@@ -1262,8 +1310,8 @@ function calculate(){
     const cons_wd1 = HOURLY_SHAPE_WEEKDAY[m].map(f => f*(wdTotal1/wdCount1));
     const cons_we1 = HOURLY_SHAPE_WEEKEND[m].map(f => f*(weTotal1/weCount1));
     const battCap1 = hasBattery ? battSize : 0;
-    const simWd1 = simulateRepresentativeDay(prodA_h1, prodB_h1, cons_wd1, PRICE_SHAPE_WEEKDAY[m], 0, 0, battCap1, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
-    const simWe1 = simulateRepresentativeDay(prodA_h1, prodB_h1, cons_we1, PRICE_SHAPE_WEEKEND[m], simWd1.socSolarEnd, simWd1.socGridEnd, battCap1, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
+    const simWd1 = simulateRepresentativeDay(prodA_h1, prodB_h1, cons_wd1, PRICE_SHAPE_WEEKDAY[m], ISDAY_WEEKDAY, networkDay, networkNight, flatFees, VAT, 0, 0, 0, battCap1, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
+    const simWe1 = simulateRepresentativeDay(prodA_h1, prodB_h1, cons_we1, PRICE_SHAPE_WEEKEND[m], ISDAY_WEEKEND, networkDay, networkNight, flatFees, VAT, simWd1.socSolarEnd, simWd1.socGridEnd, simWd1.socGridCostEnd, battCap1, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
     for (let h = 0; h < 24; h++){
       sellNum += simWd1.exportArr[h]*wdCount1*PRICE_SHAPE_WEEKDAY[m][h];
       sellDen += simWd1.exportArr[h]*wdCount1;
@@ -1325,8 +1373,8 @@ function calculate(){
       const cons_we = HOURLY_SHAPE_WEEKEND[m].map(f => f*weDayTotal);
 
       const battCap = hasBattery ? battSize : 0;
-      const simWd = simulateRepresentativeDay(prodA_h, prodB_h, cons_wd, PRICE_SHAPE_WEEKDAY[m], 0, 0, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
-      const simWe = simulateRepresentativeDay(prodA_h, prodB_h, cons_we, PRICE_SHAPE_WEEKEND[m], simWd.socSolarEnd, simWd.socGridEnd, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
+      const simWd = simulateRepresentativeDay(prodA_h, prodB_h, cons_wd, PRICE_SHAPE_WEEKDAY[m], ISDAY_WEEKDAY, networkDay, networkNight, flatFees, VAT, 0, 0, 0, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
+      const simWe = simulateRepresentativeDay(prodA_h, prodB_h, cons_we, PRICE_SHAPE_WEEKEND[m], ISDAY_WEEKEND, networkDay, networkNight, flatFees, VAT, simWd.socSolarEnd, simWd.socGridEnd, simWd.socGridCostEnd, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
 
       let daySelfConsumed_m = 0, nightShifted_m = 0, exported_m = 0;
       let dayBoughtLoad_m = 0, nightBoughtLoad_m = 0, exportRevenue_m = 0, chargingCost_m = 0;
@@ -1577,6 +1625,10 @@ function renderMonthDetail(){
   const roundtripEff = +els.roundtrip.value / 100;
   const allowGridCharge = hasBattery && allowGridChargeEl.checked;
   const allowExport = allowGridCharge;
+  const networkDay = +els.networkDay.value;
+  const networkNight = +els.networkNight.value;
+  const flatFees = (+els.excise.value) + (+els.renewfee.value) + (+els.securityfee.value) + (+els.balancingfee.value);
+  const VAT = 0.24;
 
   const profA = getHourlyProfile(azimuthA, tiltVal);
   const profB = pvSizeB>0 ? getHourlyProfile(azimuthB, tiltVal) : null;
@@ -1605,8 +1657,8 @@ function renderMonthDetail(){
 
   const battCap = hasBattery ? battSize : 0;
   const powerCapKw = +mainFuseEl.value;
-  const simWd = simulateRepresentativeDay(prodA_h, prodB_h, cons_wd, PRICE_SHAPE_WEEKDAY[m], 0, 0, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
-  const simWe = simulateRepresentativeDay(prodA_h, prodB_h, cons_we, PRICE_SHAPE_WEEKEND[m], simWd.socSolarEnd, simWd.socGridEnd, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
+  const simWd = simulateRepresentativeDay(prodA_h, prodB_h, cons_wd, PRICE_SHAPE_WEEKDAY[m], ISDAY_WEEKDAY, networkDay, networkNight, flatFees, VAT, 0, 0, 0, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
+  const simWe = simulateRepresentativeDay(prodA_h, prodB_h, cons_we, PRICE_SHAPE_WEEKEND[m], ISDAY_WEEKEND, networkDay, networkNight, flatFees, VAT, simWd.socSolarEnd, simWd.socGridEnd, simWd.socGridCostEnd, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
 
   const labels = [], prodSeries = [], consSeries = [], boughtSeries = [], exportSeries = [];
   for (let h=0; h<24; h++){
@@ -1649,6 +1701,89 @@ function renderMonthDetail(){
   document.getElementById('monthDetailTableBody').innerHTML = rows.map(([label,val]) =>
     `<tr style="border-bottom:1px solid var(--line);"><td style="padding:.5rem 0;">${label}</td><td style="text-align:right; padding:.5rem 0; font-weight:600; color:var(--elenger-blue-dark);">${fmtNum.format(Math.round(val))}</td></tr>`
   ).join('');
+
+  // --- Battery summary: same month, same 48-point T/N axis ---
+  const battLabels = [], chargedSeries = [], dischargedSeries = [], consumedSeries = [], soldSeries = [];
+  for (let h=0; h<24; h++){
+    battLabels.push('T'+h);
+    const charged = simWd.solarCharged[h]+simWd.gridCharged[h];
+    const consumed = simWd.dischargeFromSolar[h]+simWd.dischargeFromGrid[h];
+    const sold = simWd.exportFromSolar[h]+simWd.exportFromGrid[h];
+    chargedSeries.push(charged); consumedSeries.push(consumed); soldSeries.push(sold);
+    dischargedSeries.push(consumed+sold);
+  }
+  for (let h=0; h<24; h++){
+    battLabels.push('N'+h);
+    const charged = simWe.solarCharged[h]+simWe.gridCharged[h];
+    const consumed = simWe.dischargeFromSolar[h]+simWe.dischargeFromGrid[h];
+    const sold = simWe.exportFromSolar[h]+simWe.exportFromGrid[h];
+    chargedSeries.push(charged); consumedSeries.push(consumed); soldSeries.push(sold);
+    dischargedSeries.push(consumed+sold);
+  }
+  drawBatteryDetailChart(battLabels, chargedSeries, dischargedSeries, consumedSeries, soldSeries);
+
+  let battCharged=0, battConsumed=0, battSold=0;
+  let chargingCostEur=0, loadBenefitEur=0, exportRevenueEur=0;
+  for (let h=0; h<24; h++){
+    const bvWd = (PRICE_SHAPE_WEEKDAY[m][h] + (ISDAY_WEEKDAY[h]?networkDay:networkNight) + flatFees)*(1+VAT);
+    const bvWe = (PRICE_SHAPE_WEEKEND[m][h] + networkNight + flatFees)*(1+VAT); // weekend = always night tariff
+    battCharged += (simWd.solarCharged[h]+simWd.gridCharged[h])*wdCount + (simWe.solarCharged[h]+simWe.gridCharged[h])*weCount;
+    battConsumed += (simWd.dischargeFromSolar[h]+simWd.dischargeFromGrid[h])*wdCount + (simWe.dischargeFromSolar[h]+simWe.dischargeFromGrid[h])*weCount;
+    battSold += (simWd.exportFromSolar[h]+simWd.exportFromGrid[h])*wdCount + (simWe.exportFromSolar[h]+simWe.exportFromGrid[h])*weCount;
+    chargingCostEur += simWd.gridCharged[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h] + simWe.gridCharged[h]*weCount*PRICE_SHAPE_WEEKEND[m][h];
+    loadBenefitEur += simWd.dischargeFromGrid[h]*wdCount*bvWd + simWe.dischargeFromGrid[h]*weCount*bvWe;
+    exportRevenueEur += simWd.exportFromGrid[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h] + simWe.exportFromGrid[h]*weCount*PRICE_SHAPE_WEEKEND[m][h];
+  }
+  const battRows = [
+    ['Laetud kokku', fmtNum.format(Math.round(battCharged))+' kWh'],
+    ['Tarbitud akust', fmtNum.format(Math.round(battConsumed))+' kWh'],
+    ['Müüdud akust võrku', fmtNum.format(Math.round(battSold))+' kWh'],
+    ['— Laadimiskulu (võrgust ostetud osa)', '-'+fmtEUR0.format(chargingCostEur)],
+    ['— Tarbimise katte väärtus (väldib täishinda)', '+'+fmtEUR0.format(loadBenefitEur)],
+    ['— Ekspordi tulu', '+'+fmtEUR0.format(exportRevenueEur)],
+    ['Neto rahavoog arbitraažist', (loadBenefitEur+exportRevenueEur-chargingCostEur>=0?'+':'')+fmtEUR0.format(loadBenefitEur+exportRevenueEur-chargingCostEur)],
+  ];
+  document.getElementById('batteryDetailTableBody').innerHTML = battRows.map(([label,val]) =>
+    `<tr style="border-bottom:1px solid var(--line);"><td style="padding:.5rem 0;">${label}</td><td style="text-align:right; padding:.5rem 0; font-weight:600; color:var(--elenger-blue-dark);">${val}</td></tr>`
+  ).join('');
+}
+
+let batteryDetailChart;
+function drawBatteryDetailChart(labels, charged, discharged, consumed, sold){
+  const ctx = document.getElementById('batteryDetailChart');
+  if (batteryDetailChart){
+    batteryDetailChart.data.labels = labels;
+    batteryDetailChart.data.datasets[0].data = charged;
+    batteryDetailChart.data.datasets[1].data = discharged;
+    batteryDetailChart.data.datasets[2].data = consumed;
+    batteryDetailChart.data.datasets[3].data = sold;
+    batteryDetailChart.update();
+    return;
+  }
+  batteryDetailChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Laetud', data: charged, borderColor: '#009DE0', backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, borderWidth: 2 },
+        { label: 'Tühjendatud (kokku)', data: discharged, borderColor: '#7F77DD', backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, borderWidth: 2, borderDash: [4,3] },
+        { label: 'Tarbitud akust', data: consumed, borderColor: '#042C40', backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, borderWidth: 2 },
+        { label: 'Müüdud akust võrku', data: sold, borderColor: '#1D9E75', backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (item) => item.dataset.label + ': ' + item.raw.toFixed(2) + ' kWh' } }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Tund (T=tööpäev, N=nädalavahetus)' }, grid: { display: false }, ticks: { maxTicksLimit: 16 } },
+        y: { title: { display: true, text: 'kWh' }, grid: { color: '#e7eef1' } }
+      }
+    }
+  });
 }
 
 function drawMonthDetailChart(labels, prod, cons, bought, exportArr){
