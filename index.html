@@ -375,13 +375,34 @@
       </div>
       <div id="batteryFields">
         <div class="field">
-          <label>Aku maht <span class="val" id="v-battsize">7 kWh</span></label>
-          <input type="range" id="battsize" min="1" max="100" step="0.5" value="7">
+          <label>Aku tüüp</label>
+          <select id="battModules">
+            <option value="1">Deye BOS-G HV — 1 moodul + juhtmoodul (5,12 kWh, ~1773€)</option>
+            <option value="2">Deye BOS-G HV — 2 moodulit + juhtmoodul (10,24 kWh, ~2674€)</option>
+            <option value="3">Deye BOS-G HV — 3 moodulit + juhtmoodul (15,36 kWh, ~3574€)</option>
+            <option value="4" selected>Deye BOS-G HV — 4 moodulit + juhtmoodul (20,48 kWh, ~4475€) — tüüpiline miinimumklaster</option>
+            <option value="5">Deye BOS-G HV — 5 moodulit + juhtmoodul (25,6 kWh, ~5375€)</option>
+            <option value="6">Deye BOS-G HV — 6 moodulit + juhtmoodul (30,72 kWh, ~6276€)</option>
+            <option value="7">Deye BOS-G HV — 7 moodulit + juhtmoodul (35,84 kWh, ~7177€)</option>
+            <option value="8">Deye BOS-G HV — 8 moodulit + juhtmoodul (40,96 kWh, ~8077€)</option>
+            <option value="9">Deye BOS-G HV — 9 moodulit + juhtmoodul (46,08 kWh, ~8978€)</option>
+            <option value="10">Deye BOS-G HV — 10 moodulit + juhtmoodul (51,2 kWh, ~9878€)</option>
+            <option value="11">Deye BOS-G HV — 11 moodulit + juhtmoodul (56,32 kWh, ~10 779€)</option>
+            <option value="12">Deye BOS-G HV — 12 moodulit + juhtmoodul (61,44 kWh, ~11 679€) — tüüpiline maksimumklaster</option>
+            <option value="custom">Muu / käsitsi sisestatud</option>
+          </select>
         </div>
         <div class="field">
-          <label>Aku maksumus <span class="val" id="v-battcost">650 €/kWh</span></label>
-          <input type="range" id="battcost" min="300" max="1200" step="10" value="650">
+          <label>Aku maht <span class="val" id="v-battsize">20.48 kWh</span></label>
+          <input type="range" id="battsize" min="1" max="100" step="0.01" value="20.48">
         </div>
+        <div class="field">
+          <label>Aku maksumus <span class="val" id="v-battcost">218.50 €/kWh</span></label>
+          <input type="range" id="battcost" min="100" max="1200" step="0.01" value="218.50">
+        </div>
+        <p class="helptext" style="margin-top:-.5rem;">
+          Hind sisaldab nii akumoodulit (5,12 kWh, keskmine 900,54 € viie Euroopa edasimüüja — Solarhouse.bg, 7sun.eu, WccSolar, Panpower.eu, Energoshop.eu — põhjal) kui ka <b>üht juhtmoodulit (BOS-G-PDU-2/BMS, keskmine 872,76 € viie edasimüüja — Solarhouse.bg, 7sun.eu, WccSolar, Optonica, Elsol — põhjal)</b>, mis on iga klastri juures kohustuslik ühekordne lisand, olenemata moodulite arvust. Seetõttu on €/kWh väiksema klastri puhul kõrgem (juhtmoodul jaotub vähemale mahule) ja suurema klastri puhul madalam. Tüüpi valides täidetakse maht ja hind automaatselt — mõlemat saab seejärel ise täpsustada.
+        </p>
         <div class="field">
           <label>Aku poolt öösse nihutatud osa <span class="val" id="v-battnightshift">30 %</span></label>
           <input type="range" id="battnightshift" min="0" max="70" step="5" value="30">
@@ -420,13 +441,16 @@
       <hr class="section-divider">
       <p class="subtle-h">Omatarbimine (päevasest toodangust)</p>
       <div class="field">
-        <label>Omatarbimine ilma akuta <span class="val" id="v-sc-nobatt">30 %</span></label>
-        <input type="range" id="sc-nobatt" min="10" max="60" step="1" value="30">
+        <label>Omatarbimine ilma akuta <span class="val" id="v-sc-nobatt">44 %</span></label>
+        <input type="range" id="sc-nobatt" min="10" max="70" step="1" value="44">
       </div>
       <div class="field" id="sc-batt-field">
-        <label>Omatarbimine akuga <span class="val" id="v-sc-batt">65 %</span></label>
-        <input type="range" id="sc-batt" min="30" max="95" step="1" value="65">
+        <label>Omatarbimine akuga <span class="val" id="v-sc-batt">58 %</span></label>
+        <input type="range" id="sc-batt" min="30" max="95" step="1" value="58">
       </div>
+      <p class="helptext">
+        "Ilma akuta" vaikeväärtus (44%) on tuletatud tõelisest tunnipõhisest analüüsist — sinu reaalse tarbimise (min(tarbimine,tootmine) iga tunni kohta) ja füüsikalise tootmismudeli kattuvusest ~14 kuu peale, mitte üldisest rusikareeglist. Põhjus, miks see on kõrgem kui tüüpiline 30% hinnang: talvekuudel (nov-veebr) neelab baastarbimine 88-98% tootmisest ära juba ilma akutagi, kuna tootmine on nii väike.
+      </p>
 
       <hr class="section-divider">
       <p class="subtle-h">Elektri hinnad ja kulud — energia ja võrgutasu</p>
@@ -593,6 +617,10 @@ const hasBatteryEl = document.getElementById('hasBattery');
 const hasBlockBEl = document.getElementById('hasBlockB');
 const sharedMeterEl = document.getElementById('sharedMeter');
 const inverterModelEl = document.getElementById('inverterModel');
+const battModulesEl = document.getElementById('battModules');
+const DEYE_MODULE_KWH = 5.12;
+const DEYE_MODULE_EUR = 900.54;      // avg of 5 EU retailers (module), incl. VAT (see helptext)
+const DEYE_CONTROL_BOX_EUR = 872.76; // avg of 5 EU retailers (control box/BMS), incl. VAT — one per cluster
 const batteryFields = document.getElementById('batteryFields');
 const blockBFields = document.getElementById('blockBFields');
 const scBattField = document.getElementById('sc-batt-field');
@@ -1182,6 +1210,16 @@ inverterModelEl.addEventListener('change', () => {
   if (preset && preset.ac !== null){
     els.inverterAc.value = preset.ac;
     els.inverterCost.value = preset.price;
+  }
+  calculate();
+});
+battModulesEl.addEventListener('change', () => {
+  const n = parseInt(battModulesEl.value, 10);
+  if (!isNaN(n)){
+    const kwh = n*DEYE_MODULE_KWH;
+    const totalCost = n*DEYE_MODULE_EUR + DEYE_CONTROL_BOX_EUR;
+    els.battsize.value = kwh.toFixed(2);
+    els.battcost.value = (totalCost/kwh).toFixed(2);
   }
   calculate();
 });
