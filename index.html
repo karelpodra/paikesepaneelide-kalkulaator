@@ -245,12 +245,12 @@
 
       <p class="subtle-h">Ühine tarbimine (mõlema leibkonna peale, sama arvesti taga, kWh aastas)</p>
       <div class="field">
-        <label>Ühine päevane tarbimine <span class="val" id="v-consumptionDay">2500 kWh/a</span></label>
-        <input type="range" id="consumptionDay" min="500" max="10000" step="100" value="2500">
+        <label>Ühine päevane tarbimine <span class="val" id="v-consumptionDay">6600 kWh/a</span></label>
+        <input type="range" id="consumptionDay" min="500" max="10000" step="100" value="6600">
       </div>
       <div class="field">
-        <label>Ühine öine tarbimine <span class="val" id="v-consumptionNight">12000 kWh/a</span></label>
-        <input type="range" id="consumptionNight" min="500" max="15000" step="100" value="12000">
+        <label>Ühine öine tarbimine <span class="val" id="v-consumptionNight">10000 kWh/a</span></label>
+        <input type="range" id="consumptionNight" min="500" max="15000" step="100" value="10000">
       </div>
 
       <hr class="section-divider">
@@ -267,12 +267,12 @@
           <span>naaber ei investeeri</span>
         </div>
         <div class="field">
-          <label>Sinu enda tarbimine päeval <span class="val" id="v-myDayUse">1250 kWh/a</span></label>
-          <input type="range" id="myDayUse" min="0" max="10000" step="100" value="1250">
+          <label>Sinu enda tarbimine päeval <span class="val" id="v-myDayUse">3500 kWh/a</span></label>
+          <input type="range" id="myDayUse" min="0" max="10000" step="100" value="3500">
         </div>
         <div class="field">
-          <label>Sinu enda tarbimine öösel <span class="val" id="v-myNightUse">1250 kWh/a</span></label>
-          <input type="range" id="myNightUse" min="0" max="15000" step="100" value="1250">
+          <label>Sinu enda tarbimine öösel <span class="val" id="v-myNightUse">5700 kWh/a</span></label>
+          <input type="range" id="myNightUse" min="0" max="15000" step="100" value="5700">
         </div>
         <p class="helptext">
           Teie kokkuleppe kohaselt jagate elektriarvet edaspidi <b>samadel põhimõtetel nagu senini</b> — igaüks tasub oma tarbimise eest keskmise päeva- ja öötariifi alusel. Kuna see arvestuspõhimõte ei sõltu päikesetootmisest, ei muutu naabri makse päikesepaneelide paigaldamisel. Sina aga saad kolmekordset kasu: 1) toodad ise osa oma tarbitavast energiast, 2) säästad võrguteenustasudelt omatarbitud energia pealt, ning 3) kui hetkehind on odav ja päike paistab, laed akut ja müüd/tarbid seda energiat hiljem keskmise tariifi alusel — kogu see vahe jääb sulle, kuna naaber maksab jätkuvalt fikseeritud põhimõttel. Sisesta enda tarbimine ülal ainult naabri makse näitamiseks — see ei mõjuta sinu tasuvusarvutust.
@@ -282,12 +282,12 @@
       <hr class="section-divider">
       <p class="subtle-h">Päikesepaneelide süsteem</p>
       <div class="field">
-        <label>Eeldatav toodang tõelise lõuna suunas <span class="val" id="v-baseyield">950 kWh/kWp/a</span></label>
-        <input type="range" id="baseyield" min="750" max="1150" step="10" value="950">
+        <label>Eeldatav toodang tõelise lõuna suunas <span class="val" id="v-baseyield">1000 kWh/kWp/a</span></label>
+        <input type="range" id="baseyield" min="750" max="1150" step="10" value="1000">
       </div>
       <div class="field">
-        <label>Katuse kalle <span class="val" id="v-tilt">35°</span></label>
-        <input type="range" id="tilt" min="10" max="60" step="1" value="35">
+        <label>Katuse kalle <span class="val" id="v-tilt">45°</span></label>
+        <input type="range" id="tilt" min="10" max="60" step="1" value="45">
       </div>
 
       <p class="helptext" style="margin-top:-.3rem;">Blokk A ja Blokk B võivad olla suunatud eri ilmakaarte poole (nt osa katust Lõuna-lääne, osa Ida-põhja suunas) — toodang arvutatakse iga bloki jaoks eraldi, vastavalt suunale.</p>
@@ -296,16 +296,16 @@
         <span>Blokk A</span>
       </div>
       <div class="field">
-        <label>Blokk A võimsus <span class="val" id="v-pvsizeA">11.5 kWp</span></label>
-        <input type="range" id="pvsizeA" min="0" max="20" step="0.5" value="11.5">
+        <label>Blokk A võimsus <span class="val" id="v-pvsizeA">8.5 kWp</span></label>
+        <input type="range" id="pvsizeA" min="0" max="20" step="0.5" value="8.5">
       </div>
       <div class="field">
-        <label>Blokk A suund <span class="val" id="v-azimuthA">225° (Lõuna-lääs) — 92%</span></label>
-        <input type="range" id="azimuthA" min="0" max="359" step="5" value="225">
+        <label>Blokk A suund <span class="val" id="v-azimuthA">30° (Kirre) — 30% toodangut, +5% hinnategur</span></label>
+        <input type="range" id="azimuthA" min="0" max="359" step="5" value="30">
       </div>
       <div class="field">
-        <label>Blokk A hind <span class="val" id="v-pvcostA">900 €/kWp</span></label>
-        <input type="range" id="pvcostA" min="300" max="1600" step="10" value="900">
+        <label>Blokk A hind <span class="val" id="v-pvcostA">530 €/kWp</span></label>
+        <input type="range" id="pvcostA" min="300" max="1600" step="10" value="530">
       </div>
 
       <hr class="section-divider">
@@ -318,16 +318,16 @@
       </div>
       <div id="blockBFields">
         <div class="field">
-          <label>Blokk B võimsus <span class="val" id="v-pvsizeB">6 kWp</span></label>
-          <input type="range" id="pvsizeB" min="0" max="20" step="0.5" value="6">
+          <label>Blokk B võimsus <span class="val" id="v-pvsizeB">9.5 kWp</span></label>
+          <input type="range" id="pvsizeB" min="0" max="20" step="0.5" value="9.5">
         </div>
         <div class="field">
-          <label>Blokk B suund <span class="val" id="v-azimuthB">45° (Ida-põhi) — 44%</span></label>
-          <input type="range" id="azimuthB" min="0" max="359" step="5" value="45">
+          <label>Blokk B suund <span class="val" id="v-azimuthB">210° (Edel) — 96% toodangut, -13% hinnategur</span></label>
+          <input type="range" id="azimuthB" min="0" max="359" step="5" value="210">
         </div>
         <div class="field">
-          <label>Blokk B hind <span class="val" id="v-pvcostB">450 €/kWp</span></label>
-          <input type="range" id="pvcostB" min="300" max="1600" step="10" value="450">
+          <label>Blokk B hind <span class="val" id="v-pvcostB">530 €/kWp</span></label>
+          <input type="range" id="pvcostB" min="300" max="1600" step="10" value="530">
         </div>
       </div>
       <p class="helptext">
