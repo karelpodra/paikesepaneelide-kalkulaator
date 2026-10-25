@@ -1073,14 +1073,29 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, isDay
   // worth more than selling it (raw spot only, no fee/tax relief) — so serving your own deficit
   // is preferred over exporting whenever both are on the table, same as a rational owner would.
   const buyValue_h = priceShape_h.map((p,i)=>(p + (isDay_h[i]?networkDayRate:networkNightRate) + flatFees)*(1+VAT));
-  const sellValue_h = priceShape_h;
+  // Export is worth more than its raw spot price suggests: VAT here is charged on the NET grid
+  // position (gross bought minus gross sold) plus exchange fees, not on gross purchases alone, so
+  // every exported kWh reduces that net base and earns back its own 24% on top of the spot price —
+  // the full reduction in the bill is spot×(1+VAT), not spot alone. The network fee carries no such
+  // relief (it is charged on gross imports only, as buyValue_h already reflects), so only the spot
+  // portion is grossed up here.
+  const sellValue_h = priceShape_h.map(p=>p*(1+VAT));
 
-  // Charging still uses a simple "cheapest third of the day" heuristic to decide when to acquire
-  // stock at all (a cap on how much gets bought in the first place); but whether any of that
-  // stock then gets USED — for load, for export, or both — is decided purely by the profitability
-  // check below against its own weighted-average cost, not by a matching "priciest third" rule.
+  // Charging still uses a simple heuristic to decide when to acquire stock at all — a cap on how
+  // much gets bought in the first place, separate from the profitability check below that decides
+  // whether any of that stock then gets USED (for load, for export, or both). That heuristic has
+  // to SCALE with the battery's own size, not use a fixed fraction of the day: a battery that can
+  // only hold a couple of hours' worth of charge should draw only from the single cheapest hour or
+  // two, while a battery that can hold most of a day's worth needs to reach further into the day's
+  // price distribution to find enough hours to fill from — ranked by price, cheapest first, not by
+  // a fixed one-third-of-the-day cutoff. A fixed fraction either starves a small battery of its
+  // single best hour (wasting capacity sitting idle) or — for a large battery — greedily grabs
+  // every hour in that fixed slice regardless of rank, blending genuinely cheap hours with merely
+  // adequate ones into one weighted-average cost that then fails the later profitability check for
+  // energy that would have cleared it fine if charged from the best hours alone.
+  const hoursToFill = Math.min(24, Math.max(1, Math.ceil(battCapacity/pcap * 1.3)));
   const sortedPrices = [...priceShape_h].sort((a,b)=>a-b);
-  const lowThreshold = sortedPrices[7];
+  const lowThreshold = sortedPrices[Math.min(23, hoursToFill-1)];
 
   let socSolar = socSolarStart, socGrid = socGridStart, gridCost = socGridCostStart || 0;
   const solarCharged = new Array(n).fill(0);
@@ -1132,11 +1147,16 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, isDay
 
     // 4a. Acquire cheap grid stock when the hour is in the day's cheapest third (a cap on how
     // much gets bought at all; whether it is ever profitably used is decided where it's spent).
+    // What it actually COSTS is the full retail rate, not the raw spot: the network fee and VAT
+    // apply to every kWh crossing the meter regardless of why it was imported, so the cost basis
+    // tracked here must be buyValue_h, not priceShape_h — otherwise the profitability checks below
+    // (and above, in 2b) would compare against an artificially low cost and approve trades that
+    // are actually a loss once the real bill is accounted for.
     if (allowGridCharge && priceShape_h[h] < lowThreshold){
       const room2 = battCapacity - (socSolar+socGrid);
       const c = Math.min(room2, pcap);
       if (c > 0.0001){
-        gridCost = (socGrid*gridCost + c*priceShape_h[h]) / (socGrid+c); // weighted-average cost
+        gridCost = (socGrid*gridCost + c*buyValue_h[h]) / (socGrid+c); // weighted-average cost
         gridCharged[h] += c; socGrid += c;
       }
     }
@@ -1389,19 +1409,24 @@ function calculate(){
           nightBoughtLoad_m += simWd.gridBought[h]*wdCount;
         }
         exported_m += simWd.exportArr[h]*wdCount;
-        // Export and arbitrage grid-charging transact at the REAL hourly spot price, not a flat
-        // retail rate — this is what makes multi-cycle arbitrage and grid export genuinely
-        // price-aware, rather than valued at one annual-average number.
-        exportRevenue_m += simWd.exportArr[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h];
-        chargingCost_m += simWd.gridCharged[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h];
+        // Export is credited to the bill at spot×(1+VAT), not bare spot: VAT here applies to the
+        // NET grid position (gross bought minus gross sold), so every exported kWh earns back its
+        // own 24% on top of the spot price via a lower net tax base, on top of the spot payment
+        // itself — the true reduction in the bill per kWh exported is spot×(1+VAT). Arbitrage
+        // grid-CHARGING, by contrast, costs the full retail rate (network fee for that hour's
+        // tariff period, flat fees, and VAT on the gross import) with no such relief, since network
+        // fees carry no netting and the import itself is what sets the (higher) gross side of the
+        // net-position calculation.
+        exportRevenue_m += simWd.exportArr[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h]*(1+VAT);
+        chargingCost_m += simWd.gridCharged[h]*wdCount*(PRICE_SHAPE_WEEKDAY[m][h]+(ISDAY_WEEKDAY[h]?networkDay:networkNight)+flatFees)*(1+VAT);
 
         // Weekend hours are always night-tariff (ISDAY_WEEKEND is all-false).
         const offsetWe = simWe.directSelf[h] + simWe.dischargeFromSolar[h] + simWe.dischargeFromGrid[h];
         nightShifted_m += offsetWe*weCount;
         nightBoughtLoad_m += simWe.gridBought[h]*weCount;
         exported_m += simWe.exportArr[h]*weCount;
-        exportRevenue_m += simWe.exportArr[h]*weCount*PRICE_SHAPE_WEEKEND[m][h];
-        chargingCost_m += simWe.gridCharged[h]*weCount*PRICE_SHAPE_WEEKEND[m][h];
+        exportRevenue_m += simWe.exportArr[h]*weCount*PRICE_SHAPE_WEEKEND[m][h]*(1+VAT);
+        chargingCost_m += simWe.gridCharged[h]*weCount*(PRICE_SHAPE_WEEKEND[m][h]+networkNight+flatFees)*(1+VAT);
       }
 
       const prodA_m = prodA_h.reduce((a,b)=>a+b,0);
@@ -1730,9 +1755,9 @@ function renderMonthDetail(){
     battCharged += (simWd.solarCharged[h]+simWd.gridCharged[h])*wdCount + (simWe.solarCharged[h]+simWe.gridCharged[h])*weCount;
     battConsumed += (simWd.dischargeFromSolar[h]+simWd.dischargeFromGrid[h])*wdCount + (simWe.dischargeFromSolar[h]+simWe.dischargeFromGrid[h])*weCount;
     battSold += (simWd.exportFromSolar[h]+simWd.exportFromGrid[h])*wdCount + (simWe.exportFromSolar[h]+simWe.exportFromGrid[h])*weCount;
-    chargingCostEur += simWd.gridCharged[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h] + simWe.gridCharged[h]*weCount*PRICE_SHAPE_WEEKEND[m][h];
+    chargingCostEur += simWd.gridCharged[h]*wdCount*bvWd + simWe.gridCharged[h]*weCount*bvWe;
     loadBenefitEur += simWd.dischargeFromGrid[h]*wdCount*bvWd + simWe.dischargeFromGrid[h]*weCount*bvWe;
-    exportRevenueEur += simWd.exportFromGrid[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h] + simWe.exportFromGrid[h]*weCount*PRICE_SHAPE_WEEKEND[m][h];
+    exportRevenueEur += (simWd.exportFromGrid[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h] + simWe.exportFromGrid[h]*weCount*PRICE_SHAPE_WEEKEND[m][h])*(1+VAT);
   }
   const battRows = [
     ['Laetud kokku', fmtNum.format(Math.round(battCharged))+' kWh'],
