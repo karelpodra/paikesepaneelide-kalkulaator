@@ -253,7 +253,7 @@
         <input type="range" id="consumptionNight" min="500" max="15000" step="1" value="10750">
       </div>
       <p class="helptext" style="margin-top:-.4rem;">
-        Need kaks väärtust määravad aastase <b>kogumahu</b> (nende summa). Seda, kui suur osa igas konkreetses kuus on päevane vs öine, juhib nüüd allpool olev tegelikel tunnipõhistel mõõtmistel (2025-08 kuni 2026-10, ~27 500 tundi, tööpäeviti 7-22 = päev) põhinev kuupõhine jaotus — kuude vahel liigutades need kaks liugurit ei muuda enam otse suhet, ainult kogumahtu.
+        Need kaks väärtust määravad aastase <b>kogumahu</b> (nende summa). Seda, kui suur osa igas konkreetses kuus on päevane vs öine, juhib nüüd allpool olev tegelikel tunnipõhistel mõõtmistel (2025-08 kuni 2026-10, ~9935 tundi, tööpäeviti 7-22 = päev) põhinev kuupõhine jaotus — kuude vahel liigutades need kaks liugurit ei muuda enam otse suhet, ainult kogumahtu.
       </p>
 
       <hr class="section-divider">
@@ -278,7 +278,7 @@
           <input type="range" id="myNightUse" min="0" max="15000" step="100" value="5700">
         </div>
         <p class="helptext">
-          Teie kokkuleppe kohaselt jagate elektriarvet edaspidi <b>samadel põhimõtetel nagu senini</b> — igaüks tasub oma tarbimise eest keskmise päeva- ja öötariifi alusel. Kuna see arvestuspõhimõte ei sõltu päikesetootmisest, ei muutu naabri makse päikesepaneelide paigaldamisel. Sina aga saad kolmekordset kasu: 1) toodad ise osa oma tarbitavast energiast, 2) säästad võrguteenustasudelt omatarbitud energia pealt, ning 3) kui hetkehind on odav ja päike paistab, laed akut ja müüd/tarbid seda energiat hiljem keskmise tariifi alusel — kogu see vahe jääb sulle, kuna naaber maksab jätkuvalt fikseeritud põhimõttel. Sisesta enda tarbimine ülal ainult naabri makse näitamiseks — see ei mõjuta sinu tasuvusarvutust.
+          Naaber tasub oma arvesti näidu järgi (päevane ja öine kogus eraldi). Tema hinna aluse kohta on kaks võimalust, mida allpool kõrvuti näidatakse: <b>fikseeritud</b> — tänane keskmine päeva-/öötariif lukustatakse kokkuleppega (naabri makse ei sõltu sinu päikesest ega akust); või <b>tegelik keskmine ostuhind sinu arvelt</b> — see <i>muutub</i> paneelide/aku tõttu, sest omatarve eemaldab ostuprofiilist just odavad keskpäevatunnid ja aku ostab juurde odavatel tundidel, nii et allesjääva ostu keskmine hind nihkub. Kogu süsteemi loodud sääst jääb mõlemal juhul sulle, sest naabri kogus ei muutu; erinevus on vaid selles, kas naabri <i>hind</i> kõigub koos sinu süsteemi käitumisega või mitte. Tehniliselt teenindavad inverter ja aku <b>ühte ühist tarbimist</b> (sinu + naabri tarbimine kokku, nagu ühine arvesti seda mõõdab) — kogu simulatsioon arvutab just selle peale. Sinu enda tarbimine siin on ainult naabri makse väljatoomiseks (naabri osa = ühine − sinu) ega mõjuta tasuvusarvutust; liugurid ei luba sinu osal ühisest suurem olla.
         </p>
       </div>
 
@@ -394,14 +394,14 @@
         </div>
         <div class="field">
           <label>Aku maht <span class="val" id="v-battsize">20.48 kWh</span></label>
-          <input type="range" id="battsize" min="1" max="100" step="0.01" value="20.48">
+          <input type="range" id="battsize" min="5.12" max="61.44" step="5.12" value="20.48">
         </div>
         <div class="field">
           <label>Aku maksumus <span class="val" id="v-battcost">218.50 €/kWh</span></label>
           <input type="range" id="battcost" min="100" max="1200" step="0.01" value="218.50">
         </div>
         <p class="helptext" style="margin-top:-.5rem;">
-          Hind sisaldab nii akumoodulit (5,12 kWh, keskmine 900,54 € viie Euroopa edasimüüja — Solarhouse.bg, 7sun.eu, WccSolar, Panpower.eu, Energoshop.eu — põhjal) kui ka <b>üht juhtmoodulit (BOS-G-PDU-2/BMS, keskmine 872,76 € viie edasimüüja — Solarhouse.bg, 7sun.eu, WccSolar, Optonica, Elsol — põhjal)</b>, mis on iga klastri juures kohustuslik ühekordne lisand, olenemata moodulite arvust. Seetõttu on €/kWh väiksema klastri puhul kõrgem (juhtmoodul jaotub vähemale mahule) ja suurema klastri puhul madalam. Tüüpi valides täidetakse maht ja hind automaatselt — mõlemat saab seejärel ise täpsustada.
+          Hind sisaldab nii akumoodulit (5,12 kWh, keskmine 900,54 € viie Euroopa edasimüüja — Solarhouse.bg, 7sun.eu, WccSolar, Panpower.eu, Energoshop.eu — põhjal) kui ka <b>üht juhtmoodulit (BOS-G-PDU-2/BMS, keskmine 872,76 € viie edasimüüja — Solarhouse.bg, 7sun.eu, WccSolar, Optonica, Elsol — põhjal)</b>, mis on iga klastri juures kohustuslik ühekordne lisand, olenemata moodulite arvust. Seetõttu on €/kWh väiksema klastri puhul kõrgem (juhtmoodul jaotub vähemale mahule) ja suurema klastri puhul madalam. Tüüpi valides täidetakse maht ja hind automaatselt. Mahu liugur liigub täismoodulite kaupa ja hoiab hinna moodulite arvuga kooskõlas (juhtmoodul jaotub alati tegelikule mahule); kui soovid oma hinda, vali "Muu / käsitsi sisestatud" — siis mahu muutmine hinda ei puuduta.
         </p>
         <div class="field">
           <label>Aku ringtõhusus <span class="val" id="v-roundtrip">90 %</span></label>
@@ -440,8 +440,12 @@
           <label>Reguleerimisturu tulu — Qilowatt (hinnang) <span class="val" id="v-regulationRate">60 €/kW/a</span></label>
           <input type="range" id="regulationRate" min="0" max="150" step="1" value="60">
         </div>
+        <div class="field">
+          <label>Reguleerimisturu kestvusnõue <span class="val" id="v-regDuration">1 h</span></label>
+          <input type="range" id="regDuration" min="0" max="4" step="0.5" value="1">
+        </div>
         <p class="helptext" style="margin-top:-.5rem;">
-          Kalibreeritud <b>Qilowatt'i enda avaldatud määradele</b> (qilowatt.eu/paindlikkusturg): 50kW+ süsteemidel mFRR üksi ≈200-300 €/kuus (vaikeväärtus 60 €/kW/a vastab selle vahemiku keskmisele). Qilowatt'i enda sõnul lisab <b>aFRR</b> veel ~1/3 mFRR tulust juurde ja <b>võimsusturg</b> vähemalt ~20% mFRR tulust — kui liitud kõigi kolmega, tõsta liugurit umbes <b>90-95 €/kW/a</b> peale. Minimaalne sisenemislävi on madal (~5kW/~5kWh), nii et sinu süsteem sobib. Qilowatt ise rõhutab: "need on hinnangud, mitte lubadused" — tegelik tulu sõltub turuolukorrast. Pakutav võimsus on piiratud sinu inverteri ja <b>peakaitsme</b> väiksemaga (vt üleval); kui aFRR DOWN käsk nõuab võrgust laadimist, ostab Qilowatt selle algul sinu enda elektrimüüjalt (sinu hinnaga + maksud) ja kompenseerib hiljem — see tasakaalustub, nii et eraldi arvesse võtmist pole vaja.
+          Kalibreeritud <b>Qilowatt'i enda avaldatud määradele</b> (qilowatt.eu/paindlikkusturg): 50kW+ süsteemidel mFRR üksi ≈200-300 €/kuus (vaikeväärtus 60 €/kW/a vastab selle vahemiku keskmisele). Qilowatt'i enda sõnul lisab <b>aFRR</b> veel ~1/3 mFRR tulust juurde ja <b>võimsusturg</b> vähemalt ~20% mFRR tulust — kui liitud kõigi kolmega, tõsta liugurit umbes <b>90-95 €/kW/a</b> peale. Minimaalne sisenemislävi on madal (~5kW/~5kWh), nii et sinu süsteem sobib. Qilowatt ise rõhutab: "need on hinnangud, mitte lubadused" — tegelik tulu sõltub turuolukorrast. Pakutav võimsus on piiratud sinu inverteri, <b>peakaitsme</b> ja <b>aku mahu ÷ kestvusnõude</b> väikseimaga — agregaator eeldab, et pakutud võimsust suudetakse hoida teatud aja (tüüpiliselt ~1 h), nii et 5 kWh aku saab pakkuda ainult ~5 kW, ükskõik kui suur on inverter (0 h = piirang väljas); kui aFRR DOWN käsk nõuab võrgust laadimist, ostab Qilowatt selle algul sinu enda elektrimüüjalt (sinu hinnaga + maksud) ja kompenseerib hiljem — see tasakaalustub, nii et eraldi arvesse võtmist pole vaja.
         </p>
       </div>
 
@@ -478,16 +482,16 @@
       <p class="subtle-h">Elektri hinnad ja kulud — energia ja võrgutasu</p>
       <div class="row2">
         <div class="field">
-          <label>Energia hind, päev <span class="val" id="v-energyDay">0.1068 €/kWh</span></label>
-          <input type="range" id="energyDay" min="0.02" max="0.30" step="0.0001" value="0.1068">
+          <label>Energia hind, päev <span class="val" id="v-energyDay">0.1072 €/kWh</span></label>
+          <input type="range" id="energyDay" min="0.02" max="0.30" step="0.0001" value="0.1072">
         </div>
         <div class="field">
-          <label>Energia hind, öö <span class="val" id="v-energyNight">0.0604 €/kWh</span></label>
-          <input type="range" id="energyNight" min="0.01" max="0.20" step="0.0001" value="0.0604">
+          <label>Energia hind, öö <span class="val" id="v-energyNight">0.0620 €/kWh</span></label>
+          <input type="range" id="energyNight" min="0.01" max="0.20" step="0.0001" value="0.0620">
         </div>
       </div>
       <p class="helptext" style="margin-top:-.5rem;">
-        Vaikeväärtused on sinu tegeliku börsihinnaga lepingu tunnipõhiste mõõtmiste (2025-08 kuni 2026-10, ~9935 tundi) keskmised börsihinnad (käibemaksuta) vastavalt tööpäeviti 7-22 = päev / ülejäänu = öö jaotusele — mitte üldine hinnang.
+        Vaikeväärtused on mudelisse sisse ehitatud tegelike tunnipõhiste börsihindade (2025-08 kuni 2026-10, ~9935 tundi, käibemaksuta) ajaga kaalutud keskmised vastavalt tööpäeviti 7-22 = päev / ülejäänu = öö jaotusele. Liugurit liigutades skaleeritakse kogu tegelikku tunnikuju üles või alla (päeva- ja öötunnid eraldi) — eraldi "lihtsat keskmist" mudelit kõrval ei ole.
       </p>
       <div class="row2">
         <div class="field">
@@ -503,7 +507,7 @@
         <span>Müügihind võrku (ülejääk): <b>—</b></span>
       </div>
       <p class="helptext" style="margin-top:-.5rem;">
-        See ei ole enam käsitsi sisestatav — arvutatakse automaatselt sinu tegelikust tunnipõhisest börsihinna andmestikust. <b>Ilma akuta</b>: sinu praeguse paneelipaigutuse tootmisega kaalutud keskmine börsihind (kuna ülejääk tuleb müüa kohe, nendel tundidel, mil paneelid parasjagu toodavad — tihti just siis, kui hind on madal). <b>Akuga</b>: kalendriaasta kõige kallima 25% tunni (kaalutud) keskmine börsihind (kuna aku võimaldab müüa valikuliselt soodsamatel hetkedel, mitte kohe tootmise ajal).
+        See ei ole käsitsi sisestatav — iga eksporditud kWh arvestatakse simulatsioonis <b>selle konkreetse tunni tegeliku börsihinnaga</b>, mil see müüdi. Siin näidatav arv on nende müükide kogusega kaalutud keskmine: ilma akuta kipub see olema madal (ülejääk müüakse kohe tootmise ajal, tihti odavatel keskpäevatundidel), akuga kõrgem (müük nihkub kallimatele tundidele). Mõlemal juhul on see tulemus, mitte eeldus.
       </p>
 
       <hr class="section-divider">
@@ -532,13 +536,6 @@
         Kõik need komponendid (energia, võrgutasu, aktsiis, taastuvenergia tasu, varustuskindluse tasu, tasakaalustamistasu) lisanduvad kokku ja neile arvestatakse <b>käibemaks 24%</b>, kui ostad energiat võrgust. Kui toodad ja tarbid energiat ise, ei maksa sa nendest komponentidest ühtegi ega ka käibemaksu — omatarbimise väärtus on seega kogu see summa, mitte ainult toorenergia hind. Võrku müües saad ainult müügihinna eest tasu, ilma võrgutasu/aktsiisi tagastuseta.
       </p>
       <div class="field">
-        <label>Lisakohandus jääkostu hinnale <span class="val" id="v-priceUplift">0 %</span></label>
-        <input type="range" id="priceUplift" min="-30" max="40" step="1" value="0">
-      </div>
-      <p class="helptext">
-        Ülejäänud (endiselt võrgust ostetava) energia keskmine hind arvutatakse nüüd <b>automaatselt</b> selle põhjal, millistel kellaaegadel su paneelid (Blokk A/B suundade järgi) toodavad — vaata suunaliugurite juurest "hinnategurit". Kui sinu paneelid toodavad valdavalt keskpäeval (odavamad tunnid), tõuseb jääkostu hind rohkem; kui toodad rohkem hommikul/õhtul (kallimad tunnid), tõuseb see vähem või isegi langeb. See liugur on lisakohandus selle automaatse arvutuse peale, kui arvad, et tegelikkuses on efekt tugevam või nõrgem.
-      </p>
-      <div class="field">
         <label>Elektrihinna aastane kasv <span class="val" id="v-escalation">3 %</span></label>
         <input type="range" id="escalation" min="0" max="8" step="0.5" value="3">
       </div>
@@ -551,8 +548,12 @@
       <p class="subtle-h">Muud eeldused</p>
       <div class="row2">
         <div class="field">
-          <label>Süsteemi vananemine <span class="val" id="v-degradation">0.5 %/a</span></label>
+          <label>Paneelide vananemine (toodang) <span class="val" id="v-degradation">0.5 %/a</span></label>
           <input type="range" id="degradation" min="0" max="1.5" step="0.1" value="0.5">
+        </div>
+        <div class="field">
+          <label>Aku mahu vähenemine <span class="val" id="v-battFade">2 %/a</span></label>
+          <input type="range" id="battFade" min="0" max="5" step="0.5" value="2">
         </div>
         <div class="field">
           <label>Diskontomäär (NPV) <span class="val" id="v-discount">4 %</span></label>
@@ -573,7 +574,7 @@
         </div>
       </div>
       <p class="helptext">
-        <b>Paneelide eluiga</b> määrab kogu arvutuse horisondi — tasuvusaeg, rahavoog ja NPV arvutatakse selle aastate arvu peale (inverter ja ülejäänud ühekordsed kulud eeldatakse kestvat sama kaua). <b>Aku eluiga</b> on tavaliselt lühem: kui see on paneelide omast lühem, lisatakse rahavoogu iga aku eluea lõpus <b>uue aku ostukulu</b> (tänase hinnaga — akuhinnad on seni langenud, nii et see on konservatiivne eeldus) — see teeb tasuvuskõverasse nähtava languse ja vähendab NPV-d. Eraldi näidatakse ka <b>lineaarset amortisatsiooni</b> (investeering jagatud elueaga), mis on raamatupidamislik viis sama kulumise väljendamiseks aasta kohta, ja <b>puhastootlust pärast amortisatsiooni</b> — kui palju investeering keskmiselt aastas päriselt teenib, kui seadmete kulumine on maha arvatud.
+        <b>Paneelide eluiga</b> määrab kogu arvutuse horisondi — tasuvusaeg, rahavoog ja NPV arvutatakse selle aastate arvu peale (inverter ja ülejäänud ühekordsed kulud eeldatakse kestvat sama kaua). <b>Aku eluiga</b> on tavaliselt lühem: kui see on paneelide omast lühem, lisatakse rahavoogu iga aku eluea lõpus <b>uue aku ostukulu</b> (tänase hinnaga — akuhinnad on seni langenud, nii et see on konservatiivne eeldus) — see teeb tasuvuskõverasse nähtava languse ja vähendab NPV-d. Aku maht väheneb lisaks igal aastal valitud protsendi võrra ("Aku mahu vähenemine") ja taastub täismahuni iga vahetusega — simulatsioon kasutab igal aastal selle aasta tegelikku mahtu. Eraldi näidatakse <b>lineaarset amortisatsiooni</b> (investeering jagatud elueaga) kui raamatupidamislikku kontrollarvu ja <b>sisemist tootlust (IRR)</b> — intressimäära, millega kogu rahavoog (investeering, aastased säästud, aku vahetused) diskonteerub täpselt nulliks; see on võrreldav muude investeeringute tootlusega.
       </p>
     </div>
 
@@ -587,12 +588,12 @@
         <div class="metric">
           <div class="label">Sinu sääst 1. aastal</div>
           <div class="value good" id="m-savings1">–</div>
-          <div class="sub">terve süsteemi loodud kasu, sest naabri makse ei muutu</div>
+          <div class="sub">terve süsteemi loodud kasu — naabri kogus ei muutu, seega jääb sääst sulle</div>
         </div>
         <div class="metric">
           <div class="label">Tasuvusaeg</div>
           <div class="value" id="m-payback">–</div>
-          <div class="sub">investeering vs kumulatiivne sääst</div>
+          <div class="sub" id="m-payback-sub">investeering vs kumulatiivne sääst</div>
         </div>
         <div class="metric">
           <div class="label">Nüüdispuhasväärtus (<span id="m-npv-years">25</span>a)</div>
@@ -613,9 +614,9 @@
           <div class="sub" id="m-battreplace-sub">lisanduvad rahavoogu tänase akuhinnaga</div>
         </div>
         <div class="metric-sm">
-          <div class="label">Puhastootlus pärast amortisatsiooni</div>
-          <div class="value" id="m-roinet">–</div>
-          <div class="sub" id="m-roinet-sub">keskmine aastane sääst − amortisatsioon, % investeeringust</div>
+          <div class="label">Sisemine tootlus (IRR)</div>
+          <div class="value" id="m-irr">–</div>
+          <div class="sub" id="m-irr-sub">rahavoo tulumäär, sh aku vahetused ja mahu vähenemine</div>
         </div>
       </div>
 
@@ -655,7 +656,7 @@
       </div>
 
       <p class="note">
-        Omatarbimine ja aku käitumine arvutatakse nüüd <b>tund-tunnilt</b>, mitte koefitsendi järgi: iga kuu kohta simuleeritakse eraldi üks tüüpiline tööpäev ja üks tüüpiline nädalavahetuse päev, kasutades sinu tegelikku tunnipõhist tarbimiskuju (tuletatud Kaljula tee 28 ühise mõõtepunkti ~9900 tunnisest mõõtmisest, 2025-08 kuni 2026-10) ja päikese tegelikul asendil põhinevat tootmiskõverat. Aku laeb end esmalt päikese ülejäägist, vajadusel (kui lubatud) ka võrgust öötariifi tundidel, ning tühjeneb eelistatult päevatariifi (kallimatel) tundidel — tegelik akumaht on seega päris piirang, mitte eeldatav protsent. Nädalavahetus loetakse tööpäeva-öötariifi osas tervikuna öötariifiks, vastavalt Elektrilevi reeglile. Inverteri AC-võimsuse piirist tulenev clippingu-kadu on samuti juba simulatsiooni sees arvesse võetud. "Jääkostu hinnatõus" liugur jääb lisakohandusena alles, kui arvad, et sinu leping käitub veel teisiti. Kumba hinda naabri arves kasutada, tuleb naabriga kirjalikult kokku leppida. Suurema täpsuse jaoks küsi pakkumust ja tarbimisandmete analüüsi paigaldajalt või elektrimüüjalt.
+        Omatarbimine ja aku käitumine arvutatakse nüüd <b>tund-tunnilt</b>, mitte koefitsendi järgi: iga kuu kohta simuleeritakse eraldi üks tüüpiline tööpäev ja üks tüüpiline nädalavahetuse päev, kasutades sinu tegelikku tunnipõhist tarbimiskuju (tuletatud Kaljula tee 28 ühise mõõtepunkti ~9935 tunnisest mõõtmisest, 2025-08 kuni 2026-10) ja päikese tegelikul asendil põhinevat tootmiskõverat. Aku laeb end esmalt päikese ülejäägist, vajadusel (kui lubatud) ka võrgust päeva <b>odavaimatel börsitundidel</b> (hinnajärjestuses, mitte tariifiperioodi järgi), ning kasutab salvestatut seal, kus see on tegelikult kasumlik — oma tarbimise katteks või müügiks — tegelik akumaht on seega päris piirang, mitte eeldatav protsent. Kuu tüüpilist tööpäeva ja nädalavahetust simuleeritakse ahelas korduvalt, kuni aku algus- ja lõpplaeng ühtivad (püsiseisund), nii et päeva lõpus salvestatud energia ei kao, vaid kandub järgmisesse päeva. Nädalavahetus loetakse tööpäeva-öötariifi osas tervikuna öötariifiks, vastavalt Elektrilevi reeglile. Inverteri AC-võimsuse piirist tulenev clippingu-kadu on samuti juba simulatsiooni sees arvesse võetud. Kumba hinda naabri arves kasutada, tuleb naabriga kirjalikult kokku leppida. Suurema täpsuse jaoks küsi pakkumust ja tarbimisandmete analüüsi paigaldajalt või elektrimüüjalt.
       </p>
 
       <div class="card" style="margin-top:1.2rem;">
@@ -712,7 +713,7 @@
           <span class="legend-item"><span class="dot" style="background:#1D9E75"></span>Müüdud akust võrku</span>
         </div>
         <p class="helptext" style="margin-top:.9rem;">
-          Sama kuu ja sama T0–T23/N0–N23 tunnijaotus, mis ülal — "Tühjendatud" on tarbimise katte ja võrku müügi summa (kuhu salvestatud energia tervikuna läks); need kaks viimast näitavad jaotust.
+          Sama kuu ja sama T0–T23/N0–N23 tunnijaotus, mis ülal — "Tühjendatud" on tarbimise katte ja võrku müügi summa (kuhu salvestatud energia tervikuna läks); need kaks viimast näitavad jaotust. Tabelis klapib bilanss alati: laetud = tarbitud + müüdud + ringtõhususe kaod, sest iga kuu tüüpilist tööpäeva ja nädalavahetuse päeva simuleeritakse püsiseisundis (alguslaeng = lõpplaeng).
         </p>
         <table style="width:100%; border-collapse:collapse; margin-top:1.1rem; font-size:.85rem;">
           <thead>
@@ -738,7 +739,7 @@ const ids = ['consumptionDay','consumptionNight','myDayUse','myNightUse',
   'installCost','commissionCost','designCost','electricalCost','gridFee',
   'energyDay','energyNight','networkDay','networkNight',
   'excise','renewfee','securityfee','balancingfee',
-  'priceUplift','escalation','maintenance','degradation','discount','panelLife','battLife'];
+  'escalation','maintenance','degradation','battFade','regDuration','discount','panelLife','battLife'];
 const els = {};
 ids.forEach(id => els[id] = document.getElementById(id));
 const hasBatteryEl = document.getElementById('hasBattery');
@@ -866,52 +867,6 @@ function compassName(deg){
   return names[idx];
 }
 
-// --- Timing-price factor: are this orientation's production hours on average pricier or cheaper
-// than the day-tariff flat average? (captures the "sun from the east = pricier hours than sun from
-// the south" effect, using a stylised typical Nordic/Baltic day-ahead price shape by clock hour). ---
-const PRICE_SHAPE = [0.72,0.70,0.68,0.68,0.72,0.80,0.95,1.15,1.25,1.10,0.95,0.80,
-                     0.68,0.62,0.62,0.68,0.82,1.00,1.20,1.30,1.22,1.05,0.90,0.80];
-function annualTimingWeighted(compassAzimuth, tiltDeg){
-  const panelAs = compassAzimuth-180;
-  let weightedSum=0, weightTotal=0;
-  const year = 2026;
-  for (let d=0; d<365; d++){
-    const day = new Date(Date.UTC(year,0,1)+d*86400000);
-    const month = day.getUTCMonth(), date = day.getUTCDate();
-    for (let h=0; h<24; h++){
-      const {elev, As} = sunPosition(year, month, date, h);
-      if (elev<=0) continue;
-      const prod = poaFactor(elev, As, panelAs, tiltDeg);
-      weightedSum += prod*PRICE_SHAPE[h];
-      weightTotal += prod;
-    }
-  }
-  return weightTotal>0 ? weightedSum/weightTotal : 1;
-}
-function flatDaylightPriceAvg(){
-  let sum=0, count=0;
-  const year = 2026;
-  for (let d=0; d<365; d++){
-    const day = new Date(Date.UTC(year,0,1)+d*86400000);
-    const month = day.getUTCMonth(), date = day.getUTCDate();
-    for (let h=0; h<24; h++){
-      const {elev} = sunPosition(year, month, date, h);
-      if (elev<=0) continue;
-      sum += PRICE_SHAPE[h];
-      count += 1;
-    }
-  }
-  return sum/count;
-}
-const FLAT_PRICE_AVG = flatDaylightPriceAvg(); // reference: a hypothetical panel producing equally across all daylight hours
-const timingCache = {};
-function timingFactor(compassAzimuth, tiltDeg){
-  const key = Math.round(compassAzimuth)+'_'+Math.round(tiltDeg);
-  if (timingCache[key]!==undefined) return timingCache[key];
-  const val = annualTimingWeighted(compassAzimuth, tiltDeg) / FLAT_PRICE_AVG;
-  timingCache[key] = val;
-  return val;
-}
 
 // --- Real monthly consumption shape (Kaljula tee 28 ühine mõõtepunkt, 01.09.2025–01.09.2026,
 // 366 päeva tegelikke andmeid). Jaotus Jaan..Dets, summa = 1. Kuu SISENE päeva/öö jaotus
@@ -951,33 +906,6 @@ const PRICE_SHAPE_WEEKEND = [
   [0.0337,0.0360,0.0331,0.0274,0.0287,0.0346,0.0393,0.0439,0.0524,0.0682,0.0598,0.0501,0.0463,0.0517,0.0683,0.0873,0.1024,0.1056,0.0947,0.0832,0.0818,0.0656,0.0586,0.0463],
   [0.0314,0.0323,0.0246,0.0224,0.0207,0.0201,0.0238,0.0277,0.0421,0.0453,0.0523,0.0504,0.0504,0.0524,0.0570,0.0649,0.0645,0.0756,0.0565,0.0551,0.0551,0.0510,0.0438,0.0318]
 ];
-// Top-25%-of-the-year most expensive hours (by calendar weight), avg real price — used as the
-// automatic export price when a battery is present (lets you export preferentially at good prices).
-// Cached on first use since it only depends on the fixed price grid above, not on any live input.
-let _top25PriceCache = null;
-function getTop25PriceAvg(){
-  if (_top25PriceCache !== null) return _top25PriceCache;
-  const DIM = [31,28,31,30,31,30,31,31,30,31,30,31];
-  const cells = [];
-  for (let m=0; m<12; m++){
-    const wdCount = DIM[m]*5/7, weCount = DIM[m]*2/7;
-    for (let h=0; h<24; h++){
-      cells.push([PRICE_SHAPE_WEEKDAY[m][h], wdCount]);
-      cells.push([PRICE_SHAPE_WEEKEND[m][h], weCount]);
-    }
-  }
-  cells.sort((a,b)=>b[0]-a[0]);
-  const totalWeight = cells.reduce((s,c)=>s+c[1],0);
-  const target = totalWeight*0.25;
-  let cum=0, num=0, den=0;
-  for (const [price,w] of cells){
-    if (cum>=target) break;
-    const take = Math.min(w, target-cum);
-    num += price*take; den += take; cum += take;
-  }
-  _top25PriceCache = den>0 ? num/den : 0.08;
-  return _top25PriceCache;
-}
 
 // Real hourly consumption shape by month (index 0=Jan..11=Dec), derived from Karel's
 // actual meter data (Kaljula tee 28, ~9935 h, 2025-08..2026-10). Each 24-value row sums to 1.
@@ -1135,7 +1063,8 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, isDay
   const gridCharged = new Array(n).fill(0);
   const dischargeFromSolar = new Array(n).fill(0); // for load (counts as real PV self-consumption)
   const dischargeFromGrid = new Array(n).fill(0);  // for load (arbitrage benefit, not self-consumption)
-  const exportFromSolar = new Array(n).fill(0);    // stored solar sold at a good hour
+  const exportFromSolar = new Array(n).fill(0);    // stored solar sold at a good hour (via the battery)
+  const exportDirect = new Array(n).fill(0);       // roof surplus that never entered the battery, exported at once
   const exportFromGrid = new Array(n).fill(0);     // arbitrage-charged energy sold at a good hour
   const exportArr = new Array(n).fill(0);
   const curtailed = new Array(n).fill(0);
@@ -1147,7 +1076,7 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, isDay
     // 1. Solar charges the battery first, always, behind the meter (no fuse limit).
     let room = battCapacity - (socSolar+socGrid);
     const cSolar = Math.min(s, room);
-    socSolar += cSolar; s -= cSolar;
+    socSolar += cSolar; s -= cSolar; solarCharged[h] += cSolar;
 
     // 2a. Serve local load from SOLAR-origin charge first — it is free, so any positive price
     // already justifies using it; no profitability check needed.
@@ -1175,7 +1104,7 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, isDay
     // capped); whatever the fuse can't carry is curtailed (lost), not a discretionary choice.
     let meterRoom = pcap;
     const eNow = Math.min(s, meterRoom);
-    exportArr[h] += eNow; exportFromSolar[h] += eNow; meterRoom -= eNow;
+    exportArr[h] += eNow; exportDirect[h] += eNow; meterRoom -= eNow;
     curtailed[h] = s - eNow;
 
     // 4a. Acquire cheap grid stock when the hour is in the day's cheapest third (a cap on how
@@ -1212,9 +1141,70 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, isDay
     gridBought[h] = nl;
   }
 
-  return {directSelf, exportArr, exportFromSolar, exportFromGrid, dischargeFromSolar, dischargeFromGrid,
+  return {directSelf, exportArr, exportDirect, exportFromSolar, exportFromGrid, dischargeFromSolar, dischargeFromGrid,
           solarCharged, gridCharged, gridBought, curtailed,
           socSolarEnd: socSolar, socGridEnd: socGrid, socGridCostEnd: gridCost};
+}
+
+// A month is represented by one typical weekday chained into one typical weekend day. Starting
+// that weekday from an empty battery and discarding whatever is still stored at the end of the
+// weekend day throws away real energy (in sunny months the battery is rarely empty at dawn). So
+// the pair is run a few times with the weekend's closing state fed back in as the weekday's
+// opening state, until the cycle closes on itself — the steady state a real month settles into.
+// Each day type is run as its own repeating cycle (weekday→weekday, weekend→weekend): the day is
+// simulated again from the state it ended in, until the closing charge equals the opening one.
+// Then every day of that type in the month is identical and self-contained, so multiplying by
+// the number of such days keeps every monthly balance exact — production, consumption and the
+// battery's own in/out — which a weekday→weekend chain weighted 22:9 cannot do. If the cycle
+// oscillates instead of settling, the two states are averaged (damping) until it does.
+function simulateSteadyDay(prodA_h, prodB_h, cons_h, priceShape_h, isDay_h, networkDayRate, networkNightRate, flatFees, VAT, battCapacity, roundtripEff, allowGridCharge, allowExport, inverterAcCap, powerCapKw){
+  let socSolar = 0, socGrid = 0, socGridCost = 0, sim;
+  for (let pass = 0; pass < 12; pass++){
+    sim = simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, isDay_h, networkDayRate, networkNightRate, flatFees, VAT, socSolar, socGrid, socGridCost, battCapacity, roundtripEff, allowGridCharge, allowExport, inverterAcCap, powerCapKw);
+    const dSolar = sim.socSolarEnd - socSolar, dGrid = sim.socGridEnd - socGrid;
+    if (Math.abs(dSolar) < 0.001 && Math.abs(dGrid) < 0.001) break;
+    const damp = pass < 4 ? 1 : 0.5;
+    socSolar += damp*dSolar; socGrid += damp*dGrid; socGridCost = sim.socGridCostEnd;
+  }
+  sim.socStartTotal = socSolar + socGrid;
+  sim.socEndTotal = sim.socSolarEnd + sim.socGridEnd;
+  return sim;
+}
+function simulateMonthPair(prodA_h, prodB_h, cons_wd, cons_we, priceWd, priceWe, networkDayRate, networkNightRate, flatFees, VAT, battCapacity, roundtripEff, allowGridCharge, allowExport, inverterAcCap, powerCapKw){
+  return {
+    simWd: simulateSteadyDay(prodA_h, prodB_h, cons_wd, priceWd, ISDAY_WEEKDAY, networkDayRate, networkNightRate, flatFees, VAT, battCapacity, roundtripEff, allowGridCharge, allowExport, inverterAcCap, powerCapKw),
+    simWe: simulateSteadyDay(prodA_h, prodB_h, cons_we, priceWe, ISDAY_WEEKEND, networkDayRate, networkNightRate, flatFees, VAT, battCapacity, roundtripEff, allowGridCharge, allowExport, inverterAcCap, powerCapKw),
+  };
+}
+
+// The hourly price arrays are real measured spot prices; the two "energy price" sliders set the
+// LEVEL of those day-tariff and night-tariff hours (each scaled by slider ÷ the array's own
+// time-weighted average), so moving a slider rescales the real hourly shape instead of running a
+// separate flat-price model beside it. At the default slider values the scale is exactly 1.
+const PRICE_REF_DAY = 0.1072, PRICE_REF_NIGHT = 0.0620;
+function getScaledPrices(energyDay, energyNight){
+  const kDay = energyDay / PRICE_REF_DAY, kNight = energyNight / PRICE_REF_NIGHT;
+  const out = [];
+  for (let m = 0; m < 12; m++){
+    out.push({
+      wd: PRICE_SHAPE_WEEKDAY[m].map((p,h) => p * (ISDAY_WEEKDAY[h] ? kDay : kNight)),
+      we: PRICE_SHAPE_WEEKEND[m].map(p => p * kNight),
+    });
+  }
+  return out;
+}
+
+// Internal rate of return of a cashflow series (index 0 = the investment, negative), by bisection.
+function irrOf(cashflows){
+  const npvAt = r => cashflows.reduce((acc, cf, t) => acc + cf / Math.pow(1 + r, t), 0);
+  let lo = -0.95, hi = 5;
+  const fLo = npvAt(lo), fHi = npvAt(hi);
+  if (!isFinite(fLo) || !isFinite(fHi) || fLo * fHi > 0) return null;
+  for (let i = 0; i < 100; i++){
+    const mid = (lo + hi) / 2;
+    if (npvAt(lo) * npvAt(mid) <= 0) hi = mid; else lo = mid;
+  }
+  return (lo + hi) / 2;
 }
 
 let cashflowChart, balanceChart;
@@ -1222,8 +1212,12 @@ let cashflowChart, balanceChart;
 function updateLabels(){
   document.getElementById('v-consumptionDay').textContent = fmtNum.format(+els.consumptionDay.value) + ' kWh/a';
   document.getElementById('v-consumptionNight').textContent = fmtNum.format(+els.consumptionNight.value) + ' kWh/a';
-  document.getElementById('v-myDayUse').textContent = fmtNum.format(+els.myDayUse.value) + ' kWh/a';
-  document.getElementById('v-myNightUse').textContent = fmtNum.format(+els.myNightUse.value) + ' kWh/a';
+  els.myDayUse.max = els.consumptionDay.value;
+  els.myNightUse.max = els.consumptionNight.value;
+  if (+els.myDayUse.value > +els.consumptionDay.value) els.myDayUse.value = els.consumptionDay.value;
+  if (+els.myNightUse.value > +els.consumptionNight.value) els.myNightUse.value = els.consumptionNight.value;
+  document.getElementById('v-myDayUse').textContent = fmtNum.format(+els.myDayUse.value) + ' kWh/a (naaber ' + fmtNum.format((+els.consumptionDay.value) - (+els.myDayUse.value)) + ')';
+  document.getElementById('v-myNightUse').textContent = fmtNum.format(+els.myNightUse.value) + ' kWh/a (naaber ' + fmtNum.format((+els.consumptionNight.value) - (+els.myNightUse.value)) + ')';
   document.getElementById('v-baseyield').textContent = els.baseyield.value + ' kWh/kWp/a';
   document.getElementById('v-tilt').textContent = els.tilt.value + '°';
   const tiltVal = +els.tilt.value;
@@ -1231,14 +1225,12 @@ function updateLabels(){
   document.getElementById('v-pvcostA').textContent = fmtNum.format(+els.pvcostA.value) + ' €/kWp';
   const azA = +els.azimuthA.value;
   const factA = orientationFactor(azA, tiltVal);
-  const timeA = timingFactor(azA, tiltVal);
-  document.getElementById('v-azimuthA').textContent = `${azA}° (${compassName(azA)}) — ${Math.round(factA*100)}% toodangut, ${timeA>=1?'+':''}${Math.round((timeA-1)*100)}% hinnategur`;
+  document.getElementById('v-azimuthA').textContent = `${azA}° (${compassName(azA)}) — ${Math.round(factA*100)}% toodangut`;
   document.getElementById('v-pvsizeB').textContent = els.pvsizeB.value + ' kWp';
   document.getElementById('v-pvcostB').textContent = fmtNum.format(+els.pvcostB.value) + ' €/kWp';
   const azB = +els.azimuthB.value;
   const factB = orientationFactor(azB, tiltVal);
-  const timeB = timingFactor(azB, tiltVal);
-  document.getElementById('v-azimuthB').textContent = `${azB}° (${compassName(azB)}) — ${Math.round(factB*100)}% toodangut, ${timeB>=1?'+':''}${Math.round((timeB-1)*100)}% hinnategur`;
+  document.getElementById('v-azimuthB').textContent = `${azB}° (${compassName(azB)}) — ${Math.round(factB*100)}% toodangut`;
   document.getElementById('v-inverterAc').textContent = (+els.inverterAc.value) + ' kW';
   document.getElementById('v-inverterCost').textContent = fmtNum.format(+els.inverterCost.value) + ' €';
   document.getElementById('v-battsize').textContent = els.battsize.value + ' kWh';
@@ -1258,10 +1250,11 @@ function updateLabels(){
   document.getElementById('v-renewfee').textContent = (+els.renewfee.value).toFixed(4) + ' €/kWh';
   document.getElementById('v-securityfee').textContent = (+els.securityfee.value).toFixed(4) + ' €/kWh';
   document.getElementById('v-balancingfee').textContent = (+els.balancingfee.value).toFixed(4) + ' €/kWh';
-  document.getElementById('v-priceUplift').textContent = els.priceUplift.value + ' %';
   document.getElementById('v-escalation').textContent = els.escalation.value + ' %';
   document.getElementById('v-maintenance').textContent = fmtNum.format(+els.maintenance.value) + ' €/a';
   document.getElementById('v-degradation').textContent = els.degradation.value + ' %/a';
+  document.getElementById('v-battFade').textContent = els.battFade.value + ' %/a';
+  document.getElementById('v-regDuration').textContent = (+els.regDuration.value) === 0 ? 'piirang väljas' : els.regDuration.value + ' h';
   document.getElementById('v-discount').textContent = els.discount.value + ' %';
   document.getElementById('v-panelLife').textContent = els.panelLife.value + ' a';
   document.getElementById('v-battLife').textContent = els.battLife.value + ' a';
@@ -1282,13 +1275,11 @@ function calculate(){
   const pvCostA = +els.pvcostA.value;
   const azimuthA = +els.azimuthA.value;
   const yieldA = baseYield * orientationFactor(azimuthA, tiltVal);
-  const timingFactorA = timingFactor(azimuthA, tiltVal);
   const hasBlockB = hasBlockBEl.checked;
   const pvSizeB = hasBlockB ? +els.pvsizeB.value : 0;
   const pvCostB = +els.pvcostB.value;
   const azimuthB = +els.azimuthB.value;
   const yieldB = baseYield * orientationFactor(azimuthB, tiltVal);
-  const timingFactorB = timingFactor(azimuthB, tiltVal);
   const pvSize = pvSizeA + pvSizeB;
 
   const inverterAc = +els.inverterAc.value;
@@ -1312,10 +1303,11 @@ function calculate(){
   const buyPriceDay0 = (energyDay0 + networkDay + flatFees) * (1 + VAT);
   const buyPriceNight0 = (energyNight0 + networkNight + flatFees) * (1 + VAT);
   const powerCapKw = +mainFuseEl.value;
-  const priceUplift = +els.priceUplift.value / 100;
   const escalation = +els.escalation.value / 100;
   const maintenance = +els.maintenance.value;
   const degradation = +els.degradation.value / 100;
+  const battFade = +els.battFade.value / 100;
+  const regDuration = +els.regDuration.value;
   const discount = +els.discount.value / 100;
 
   batteryFields.style.display = hasBattery ? 'block' : 'none';
@@ -1339,223 +1331,148 @@ function calculate(){
   for (let i=0;i<profA.length;i++) sumAraw += profA[i];
   if (profB) for (let i=0;i<profB.length;i++) sumBraw += profB[i];
 
-  // Automatic export (sell) price: run one year-1 pass of the exact same hourly simulation,
-  // then take the EXPORT-weighted average of the real historical spot price (see PRICE_SHAPE_*)
-  // over whatever actually got exported. With no battery, everything not self-consumed is
-  // exported as it's produced (often cheap midday hours). With a battery (+ the peakaitse power
-  // cap above), export only happens once the battery is full — and for a big battery, charging
-  // itself takes several of the cheapest hours before export resumes — so the realized price
-  // reflects the ACTUAL simulated behaviour for this exact system, not a generic assumption.
-  const scaleA1 = sumAraw>0 ? (pvSizeA*yieldA)/sumAraw : 0;
-  const scaleB1 = (profB && sumBraw>0) ? (pvSizeB*yieldB)/sumBraw : 0;
-  const DAYS_IN_MONTH_PRE = [31,28,31,30,31,30,31,31,30,31,30,31];
-  let sellNum = 0, sellDen = 0;
-  for (let m = 0; m < 12; m++){
-    const doy1 = MID_MONTH_DOY[m];
-    const startIdx1 = doy1*24;
-    const prodA_h1 = new Array(24), prodB_h1 = new Array(24);
-    for (let h = 0; h < 24; h++){
-      prodA_h1[h] = profA[startIdx1+h]*scaleA1;
-      prodB_h1[h] = profB ? profB[startIdx1+h]*scaleB1 : 0;
-    }
-    const monthTotal1 = (consumptionDay+consumptionNight) * MONTHLY_CONSUMPTION_SHARE[m];
-    const wdTotal1 = monthTotal1 * WEEKDAY_FRACTION[m];
-    const weTotal1 = monthTotal1 * (1 - WEEKDAY_FRACTION[m]);
-    const wdCount1 = DAYS_IN_MONTH_PRE[m]*5/7, weCount1 = DAYS_IN_MONTH_PRE[m]*2/7;
-    const cons_wd1 = HOURLY_SHAPE_WEEKDAY[m].map(f => f*(wdTotal1/wdCount1));
-    const cons_we1 = HOURLY_SHAPE_WEEKEND[m].map(f => f*(weTotal1/weCount1));
-    const battCap1 = hasBattery ? battSize : 0;
-    const simWd1 = simulateRepresentativeDay(prodA_h1, prodB_h1, cons_wd1, PRICE_SHAPE_WEEKDAY[m], ISDAY_WEEKDAY, networkDay, networkNight, flatFees, VAT, 0, 0, 0, battCap1, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
-    const simWe1 = simulateRepresentativeDay(prodA_h1, prodB_h1, cons_we1, PRICE_SHAPE_WEEKEND[m], ISDAY_WEEKEND, networkDay, networkNight, flatFees, VAT, simWd1.socSolarEnd, simWd1.socGridEnd, simWd1.socGridCostEnd, battCap1, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
-    for (let h = 0; h < 24; h++){
-      sellNum += simWd1.exportArr[h]*wdCount1*PRICE_SHAPE_WEEKDAY[m][h];
-      sellDen += simWd1.exportArr[h]*wdCount1;
-      sellNum += simWe1.exportArr[h]*weCount1*PRICE_SHAPE_WEEKEND[m][h];
-      sellDen += simWe1.exportArr[h]*weCount1;
-    }
-  }
-  const avgRealizedSellPrice = sellDen > 0.01 ? sellNum/sellDen : getTop25PriceAvg();
-  document.getElementById('sellPriceInfo').innerHTML =
-    `<span>Keskmine realiseeritud müügihind: <b>${avgRealizedSellPrice.toFixed(4)} €/kWh</b></span><span>${hasBattery ? 'akuga, mitme tsükliga' : 'ilma akuta'} — igat tundi arvestatakse nüüd eraldi tegeliku hinnaga</span>`;
-
-  // The analysis horizon is the panels' lifetime: once they are done, so is the project (inverter
-  // and the other one-off costs are assumed to last as long). The battery usually dies sooner, so
-  // at the end of every battery lifetime that falls inside the horizon a replacement is bought at
-  // today's battery price and charged to that year's cashflow — that is what makes a shorter
-  // battery life cost real money here, rather than being a mere accounting entry.
-  const years = Math.max(1, Math.round(+els.panelLife.value));
-  const battLife = Math.max(1, Math.round(+els.battLife.value));
-  const battReplacementCost = hasBattery ? battSize * battCostPerKwh : 0;
-  let battReplacements = 0;
-  let replacementCapexSoFar = 0;
-  let cumulative = 0;
-  let cumulativeDiscounted = -totalInvestment;
-  const cumSeries = [-totalInvestment];
-  const labels = [0];
-  let paybackYear = null;
-
-  let year1DaySelfConsumed = 0, year1NightShifted = 0, year1Exported = 0, year1Bought = 0;
-  let year1UpliftedDayPrice = 0;
-  let year1Savings = 0;
-
+  const prices = getScaledPrices(energyDay0, energyNight0);
   const annualConsumptionTotal = consumptionDay + consumptionNight;
-
   const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
 
-  for (let y = 1; y <= years; y++){
-    const degFactor = Math.pow(1 - degradation, y - 1);
-    const scaleA = sumAraw>0 ? (pvSizeA*yieldA*degFactor)/sumAraw : 0;
-    const scaleB = (profB && sumBraw>0) ? (pvSizeB*yieldB*degFactor)/sumBraw : 0;
-
-    // Full hourly simulation: one representative weekday + one representative weekend day per
-    // month, using this month's real hourly consumption shape and the real sun-position-based
-    // production curve, with the battery charging from solar surplus (always) and, if allowed,
-    // topping up from the grid at night-tariff hours — then discharging preferentially at
-    // day-tariff (pricier) hours. Each representative day's flows are scaled by how many such
-    // days occur that month and summed into the year's totals.
-    let daySelfConsumed = 0, nightShifted = 0, exported = 0, dayBought = 0, nightBought = 0;
-    let exportRevenueEur = 0, chargingCostEur = 0;
-    let selfConsumedA = 0, selfConsumedB = 0;
-
+  // One full year of the hourly simulation, in today's euros. Everything financial is read
+  // straight off the simulated hours: what the house would have paid with no system at all
+  // (every consumed kWh at that hour's full retail rate), what it actually pays (every imported
+  // kWh — for load or for charging — at that hour's full retail rate) and what export earns
+  // (every exported kWh at that hour's bare spot price). The saving is simply the difference.
+  // No separate flat-price model, no orientation "timing factor", no adjustment knob: the same
+  // hourly prices that drive the battery's decisions also price the result.
+  function simulateYear(scaleA, scaleB, battCap){
+    const Y = { baselineCost:0, importCost:0, chargingCost:0, exportRevenue:0,
+      daySelfConsumed:0, nightShifted:0, exported:0, dayBought:0, nightBought:0, curtailed:0, production:0, consumption:0,
+      dayPurchKwh:0, dayPurchSpot:0, nightPurchKwh:0, nightPurchSpot:0, sellNum:0, sellDen:0 };
     for (let m = 0; m < 12; m++){
-      const doy = MID_MONTH_DOY[m];
-      const startIdx = doy*24;
+      const startIdx = MID_MONTH_DOY[m]*24;
       const prodA_h = new Array(24), prodB_h = new Array(24);
       for (let h = 0; h < 24; h++){
         prodA_h[h] = profA[startIdx+h]*scaleA;
         prodB_h[h] = profB ? profB[startIdx+h]*scaleB : 0;
       }
-
       const monthConsumptionTotal = annualConsumptionTotal * MONTHLY_CONSUMPTION_SHARE[m];
-      const wdTotal = monthConsumptionTotal * WEEKDAY_FRACTION[m];
-      const weTotal = monthConsumptionTotal * (1 - WEEKDAY_FRACTION[m]);
-      const wdCount = DAYS_IN_MONTH[m] * 5/7;
-      const weCount = DAYS_IN_MONTH[m] * 2/7;
-      const wdDayTotal = wdCount>0 ? wdTotal/wdCount : 0;
-      const weDayTotal = weCount>0 ? weTotal/weCount : 0;
+      const wdCount = DAYS_IN_MONTH[m] * 5/7, weCount = DAYS_IN_MONTH[m] * 2/7;
+      const wdDayTotal = monthConsumptionTotal * WEEKDAY_FRACTION[m] / wdCount;
+      const weDayTotal = monthConsumptionTotal * (1 - WEEKDAY_FRACTION[m]) / weCount;
       const cons_wd = HOURLY_SHAPE_WEEKDAY[m].map(f => f*wdDayTotal);
       const cons_we = HOURLY_SHAPE_WEEKEND[m].map(f => f*weDayTotal);
-
-      const battCap = hasBattery ? battSize : 0;
-      const simWd = simulateRepresentativeDay(prodA_h, prodB_h, cons_wd, PRICE_SHAPE_WEEKDAY[m], ISDAY_WEEKDAY, networkDay, networkNight, flatFees, VAT, 0, 0, 0, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
-      const simWe = simulateRepresentativeDay(prodA_h, prodB_h, cons_we, PRICE_SHAPE_WEEKEND[m], ISDAY_WEEKEND, networkDay, networkNight, flatFees, VAT, simWd.socSolarEnd, simWd.socGridEnd, simWd.socGridCostEnd, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
-
-      let daySelfConsumed_m = 0, nightShifted_m = 0, exported_m = 0;
-      let dayBoughtLoad_m = 0, nightBoughtLoad_m = 0, exportRevenue_m = 0, chargingCost_m = 0;
-
-      for (let h = 0; h < 24; h++){
-        const offsetWd = simWd.directSelf[h] + simWd.dischargeFromSolar[h] + simWd.dischargeFromGrid[h];
-        if (ISDAY_WEEKDAY[h]){
-          daySelfConsumed_m += offsetWd*wdCount;
-          dayBoughtLoad_m += simWd.gridBought[h]*wdCount;
-        } else {
-          nightShifted_m += offsetWd*wdCount;
-          nightBoughtLoad_m += simWd.gridBought[h]*wdCount;
+      const {simWd, simWe} = simulateMonthPair(prodA_h, prodB_h, cons_wd, cons_we, prices[m].wd, prices[m].we, networkDay, networkNight, flatFees, VAT, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
+      for (const [sim, price, isDayFn, cnt, cons] of [[simWd, prices[m].wd, h=>ISDAY_WEEKDAY[h], wdCount, cons_wd], [simWe, prices[m].we, ()=>false, weCount, cons_we]]){
+        for (let h = 0; h < 24; h++){
+          const isDay = isDayFn(h);
+          const bv = (price[h] + (isDay ? networkDay : networkNight) + flatFees) * (1 + VAT);
+          const bought = sim.gridBought[h], charged = sim.gridCharged[h], exp = sim.exportArr[h];
+          const offset = sim.directSelf[h] + sim.dischargeFromSolar[h] + sim.dischargeFromGrid[h];
+          Y.baselineCost += cons[h]*cnt*bv;
+          Y.importCost += (bought + charged)*cnt*bv;
+          Y.chargingCost += charged*cnt*bv;
+          Y.exportRevenue += exp*cnt*price[h];
+          Y.sellNum += exp*cnt*price[h]; Y.sellDen += exp*cnt;
+          Y.exported += exp*cnt; Y.curtailed += sim.curtailed[h]*cnt;
+          Y.production += (prodA_h[h] + prodB_h[h])*cnt; Y.consumption += cons[h]*cnt;
+          if (isDay){ Y.daySelfConsumed += offset*cnt; Y.dayBought += bought*cnt; Y.dayPurchKwh += (bought+charged)*cnt; Y.dayPurchSpot += (bought+charged)*cnt*price[h]; }
+          else { Y.nightShifted += offset*cnt; Y.nightBought += bought*cnt; Y.nightPurchKwh += (bought+charged)*cnt; Y.nightPurchSpot += (bought+charged)*cnt*price[h]; }
         }
-        exported_m += simWd.exportArr[h]*wdCount;
-        // Export is credited at the bare hourly spot price — no VAT either way, since a private,
-        // non-VAT-registered seller neither charges nor receives any on electricity sold to the
-        // grid. Arbitrage grid-CHARGING still costs the full retail rate (network fee for that
-        // hour's tariff period, flat fees, and VAT on the gross import), since none of that is
-        // relieved by anything sold later.
-        exportRevenue_m += simWd.exportArr[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h];
-        chargingCost_m += simWd.gridCharged[h]*wdCount*(PRICE_SHAPE_WEEKDAY[m][h]+(ISDAY_WEEKDAY[h]?networkDay:networkNight)+flatFees)*(1+VAT);
-
-        // Weekend hours are always night-tariff (ISDAY_WEEKEND is all-false).
-        const offsetWe = simWe.directSelf[h] + simWe.dischargeFromSolar[h] + simWe.dischargeFromGrid[h];
-        nightShifted_m += offsetWe*weCount;
-        nightBoughtLoad_m += simWe.gridBought[h]*weCount;
-        exported_m += simWe.exportArr[h]*weCount;
-        exportRevenue_m += simWe.exportArr[h]*weCount*PRICE_SHAPE_WEEKEND[m][h];
-        chargingCost_m += simWe.gridCharged[h]*weCount*(PRICE_SHAPE_WEEKEND[m][h]+networkNight+flatFees)*(1+VAT);
       }
-
-      const prodA_m = prodA_h.reduce((a,b)=>a+b,0);
-      const prodB_m = prodB_h.reduce((a,b)=>a+b,0);
-      const shareA_m = (prodA_m+prodB_m) > 0 ? prodA_m/(prodA_m+prodB_m) : 0;
-
-      daySelfConsumed += daySelfConsumed_m;
-      nightShifted += nightShifted_m;
-      exported += exported_m;
-      dayBought += dayBoughtLoad_m;
-      nightBought += nightBoughtLoad_m;
-      exportRevenueEur += exportRevenue_m;
-      chargingCostEur += chargingCost_m;
-      selfConsumedA += daySelfConsumed_m * shareA_m;
-      selfConsumedB += daySelfConsumed_m * (1 - shareA_m);
     }
+    return Y;
+  }
 
+  // The analysis horizon is the panels' lifetime: once they are done, so is the project (inverter
+  // and the other one-off costs are assumed to last as long). The battery usually dies sooner, so
+  // at the end of every battery lifetime that falls inside the horizon a replacement is bought at
+  // today's battery price and charged to that year's cashflow — that is what makes a shorter
+  // battery life cost real money here, rather than being a mere accounting entry. In between, the
+  // battery's usable capacity shrinks by the fade rate each year and comes back to full with each
+  // replacement, and the simulation is run with that year's actual capacity.
+  const years = Math.max(1, Math.round(+els.panelLife.value));
+  const battLife = Math.max(1, Math.round(+els.battLife.value));
+  const battReplacementCost = hasBattery ? battSize * battCostPerKwh : 0;
+  let battReplacements = 0;
+  let replacementCapexSoFar = 0;
+  let cumulative = 0, cumulativeNoReg = 0;
+  let cumulativeDiscounted = -totalInvestment;
+  const cumSeries = [-totalInvestment];
+  const cashflows = [-totalInvestment];
+  const labels = [0];
+  let paybackYear = null, paybackYearNoReg = null;
+  let year1 = null, year1Savings = 0, year1RegKw = 0, year1BattCap = 0;
+
+  for (let y = 1; y <= years; y++){
+    const degFactor = Math.pow(1 - degradation, y - 1);
+    const scaleA = sumAraw>0 ? (pvSizeA*yieldA*degFactor)/sumAraw : 0;
+    const scaleB = (profB && sumBraw>0) ? (pvSizeB*yieldB*degFactor)/sumBraw : 0;
+    const battAge = (y - 1) % battLife;                      // years since new (resets at each replacement)
+    const battCap_y = hasBattery ? battSize * Math.pow(1 - battFade, battAge) : 0;
+
+    const Y = simulateYear(scaleA, scaleB, battCap_y);
     const escFactor = Math.pow(1 + escalation, y - 1);
-    const energyDay_y = energyDay0 * escFactor;
-    const nonEnergyDay_y = (networkDay + flatFees) * escFactor;
-    const buyPriceDay = (energyDay_y + nonEnergyDay_y) * (1 + VAT);
-    const buyPriceNight = buyPriceNight0 * escFactor;
 
-
-    // Timing-aware residual price: self-consumption doesn't remove a "random" set of hours —
-    // it removes hours weighted by each block's own orientation-timing factor. By conservation,
-    // whatever's left over (dayBought) must average out to a correspondingly different price.
-    const blendedTimingFactor = daySelfConsumed > 0
-      ? (selfConsumedA * timingFactorA + selfConsumedB * timingFactorB) / daySelfConsumed
-      : 1;
-    const flatEnergyCostTotal = energyDay_y * consumptionDay;
-    const selfConsumedEnergyCost = energyDay_y * blendedTimingFactor * daySelfConsumed;
-    const residualEnergyCost = flatEnergyCostTotal - selfConsumedEnergyCost;
-    const residualEnergyPrice = dayBought > 0 ? residualEnergyCost / dayBought : energyDay_y;
-    const upliftedDayPrice = (residualEnergyPrice * (1 + priceUplift) + nonEnergyDay_y) * (1 + VAT);
-
-    const daySavings = consumptionDay * buyPriceDay - dayBought * upliftedDayPrice;
-    const nightSavings = nightShifted * buyPriceNight;
-    // Export and arbitrage-charging transact at the real spot price each hour (summed during the
-    // month loop above, in today's euros) — escalate that total the same way every other price
-    // in the model escalates, rather than re-deriving it from a single flat €/kWh figure.
-    const exportRevenue = exportRevenueEur * escFactor;
-    const chargingCost = chargingCostEur * escFactor;
     // Regulation-market revenue (FCR/aFRR/mFRR via an aggregator) — a market-rate estimate, not a
-    // physics-derived figure like everything else above; capped by whichever is smaller, the
-    // inverter's rating or the peakaitse, since that is the real ceiling on offerable power.
-    const regulationRevenue = hasBattery ? Math.min(inverterAc, powerCapKw) * regulationRate * escFactor : 0;
-
-    const savings = daySavings + nightSavings + exportRevenue - chargingCost + regulationRevenue - maintenance;
+    // physics-derived figure like everything else; the offerable power is the smallest of the
+    // inverter rating, the peakaitse, and what this year's battery capacity can sustain for the
+    // required duration (a 5 kWh battery cannot offer 17 kW for an hour, whatever the inverter says).
+    const regKw = hasBattery ? Math.min(inverterAc, powerCapKw, regDuration > 0 ? battCap_y / regDuration : Infinity) : 0;
+    const regulationRevenue = regKw * regulationRate * escFactor;
+    const energySavings = (Y.baselineCost - Y.importCost + Y.exportRevenue) * escFactor;
+    const savings = energySavings + regulationRevenue - maintenance;
+    const savingsNoReg = energySavings - maintenance;
 
     cumulative += savings;
+    cumulativeNoReg += savingsNoReg;
     cumulativeDiscounted += savings / Math.pow(1 + discount, y);
-
-    // Battery replacement: due at the end of each battery lifetime, but not if it coincides with
-    // the end of the project itself — a battery that dies exactly when the panels do needs no
-    // successor. `cumulative` stays pure operating savings; capex is tracked separately so the
-    // depreciation metrics below can read the two apart.
+    let replacementThisYear = 0;
     if (hasBattery && battReplacementCost > 0 && y % battLife === 0 && y < years){
       battReplacements += 1;
+      replacementThisYear = battReplacementCost;
       replacementCapexSoFar += battReplacementCost;
       cumulativeDiscounted -= battReplacementCost / Math.pow(1 + discount, y);
     }
-
+    cashflows.push(savings - replacementThisYear);
     cumSeries.push(cumulative - totalInvestment - replacementCapexSoFar);
     labels.push(y);
 
     if (paybackYear === null && (cumulative - totalInvestment - replacementCapexSoFar) >= 0){
       const prevCum = cumSeries[cumSeries.length - 2];
       const thisCum = cumSeries[cumSeries.length - 1];
-      const frac = prevCum / (prevCum - thisCum);
-      paybackYear = (y - 1) + frac;
+      paybackYear = (y - 1) + prevCum / (prevCum - thisCum);
+    }
+    if (paybackYearNoReg === null && (cumulativeNoReg - totalInvestment - replacementCapexSoFar) >= 0){
+      const prevCum = cumulativeNoReg - savingsNoReg - totalInvestment - replacementCapexSoFar + (replacementThisYear);
+      const thisCum = cumulativeNoReg - totalInvestment - replacementCapexSoFar;
+      paybackYearNoReg = (y - 1) + (thisCum !== prevCum ? prevCum / (prevCum - thisCum) : 0);
     }
 
-    if (y === 1){
-      year1DaySelfConsumed = daySelfConsumed;
-      year1NightShifted = nightShifted;
-      year1Exported = exported;
-      year1Bought = dayBought + nightBought;
-      year1Savings = savings;
-      year1UpliftedDayPrice = upliftedDayPrice;
-    }
+    if (y === 1){ year1 = Y; year1Savings = savings; year1RegKw = regKw; year1BattCap = battCap_y; }
   }
 
+  const year1DaySelfConsumed = year1.daySelfConsumed, year1NightShifted = year1.nightShifted;
+  const year1Exported = year1.exported, year1Bought = year1.dayBought + year1.nightBought;
+
+  const avgRealizedSellPrice = year1.sellDen > 0.01 ? year1.sellNum/year1.sellDen : null;
+  document.getElementById('sellPriceInfo').innerHTML = avgRealizedSellPrice !== null
+    ? `<span>Keskmine realiseeritud müügihind: <b>${avgRealizedSellPrice.toFixed(4)} €/kWh</b></span><span>${hasBattery ? 'akuga, mitme tsükliga' : 'ilma akuta'} — igat eksporditud kWh arvestatakse selle tunni tegeliku börsihinnaga</span>`
+    : `<span>Müüki võrku ei teki — kogu toodang tarbitakse ise</span>`;
+
   const npv = cumulativeDiscounted;
+  const irr = irrOf(cashflows);
+
+  // Neighbour: pays for their own metered quantity, either at today's frozen average tariffs, or at
+  // the average price actually paid for grid purchases on your bill — which the simulation gives
+  // exactly: the spot-weighted mean of every imported kWh (for load and for charging) in that
+  // tariff period, year 1. Self-consumption removes mostly cheap midday hours from the purchase
+  // profile and the battery buys extra on cheap hours, so this mean moves with the system.
   const neighborDayUse = Math.max(consumptionDay - myDayUse, 0);
   const neighborNightUse = Math.max(consumptionNight - myNightUse, 0);
+  const residualDaySpot = year1.dayPurchKwh > 0.01 ? year1.dayPurchSpot / year1.dayPurchKwh : energyDay0;
+  const residualNightSpot = year1.nightPurchKwh > 0.01 ? year1.nightPurchSpot / year1.nightPurchKwh : energyNight0;
+  const floatDayPrice = (residualDaySpot + networkDay + flatFees) * (1 + VAT);
+  const floatNightPrice = (residualNightSpot + networkNight + flatFees) * (1 + VAT);
   const neighborPaymentFrozen = neighborDayUse * buyPriceDay0 + neighborNightUse * buyPriceNight0;
-  const neighborPaymentFloating = neighborDayUse * year1UpliftedDayPrice + neighborNightUse * buyPriceNight0;
+  const neighborPaymentFloating = neighborDayUse * floatDayPrice + neighborNightUse * floatNightPrice;
   const neighborDiff = neighborPaymentFloating - neighborPaymentFrozen;
 
   document.getElementById('m-investment').textContent = fmtEUR0.format(totalInvestment);
@@ -1563,6 +1480,9 @@ function calculate(){
   document.getElementById('m-savings1').textContent = fmtEUR0.format(Math.max(year1Savings,0));
   document.getElementById('m-payback').textContent = paybackYear ? paybackYear.toFixed(1) + ' aastat' : `> ${years} aastat`;
   document.getElementById('m-payback').className = 'value ' + (paybackYear && paybackYear <= 15 ? 'good' : (paybackYear ? '' : 'warn'));
+  document.getElementById('m-payback-sub').textContent = hasBattery
+    ? `ilma reguleerimistuluta: ${paybackYearNoReg ? paybackYearNoReg.toFixed(1) + ' a' : '> ' + years + ' a'} (pakutav ${year1RegKw.toFixed(1)} kW × ${fmtNum.format(regulationRate)} €/kW/a)`
+    : 'investeering vs kumulatiivne sääst';
   document.getElementById('m-npv-years').textContent = years;
   document.getElementById('cashflow-years').textContent = years;
   document.getElementById('m-npv').textContent = fmtEUR0.format(npv);
@@ -1570,25 +1490,19 @@ function calculate(){
   document.getElementById('m-npv-sub').textContent = (npv >= 0 ? 'investeering loob väärtust' : 'investeering ei tasu end diskonteeritult ära') + (battReplacements > 0 ? `, sh ${battReplacements} aku vahetus${battReplacements>1?'t':''}` : '');
 
   // Straight-line depreciation: the accounting view of the same wear — each asset's cost spread
-  // evenly over its own lifetime. The project-life assets (panels, inverter, one-off costs) go
-  // over the panel lifetime; the battery over its own, shorter one. Net return after depreciation
-  // is then the average operating saving per year over the horizon (escalation included) minus
-  // that wear, expressed as a yearly % of the money put in — what the investment really earns
-  // once the equipment using itself up is paid for.
+  // evenly over its own lifetime (project-life assets over the panel lifetime, the battery over
+  // its own). Shown as a cross-check beside the IRR, which is the cashflow's own answer.
   const projectLifeCapex = pvSizeA * pvCostA + pvSizeB * pvCostB + inverterCost + otherCosts;
   const annualDepreciation = projectLifeCapex / years + (hasBattery ? battSize * battCostPerKwh / battLife : 0);
-  const avgAnnualSavings = cumulative / years;
-  const netAnnualReturn = avgAnnualSavings - annualDepreciation;
-  const roiNet = totalInvestment > 0 ? netAnnualReturn / totalInvestment * 100 : 0;
   document.getElementById('m-depreciation').textContent = fmtEUR0.format(annualDepreciation) + '/a';
   document.getElementById('m-depreciation-sub').textContent = `paneelid+inverter+muu ÷ ${years} a` + (hasBattery ? ` + aku ÷ ${battLife} a` : '');
   document.getElementById('m-battreplace').textContent = hasBattery ? `${battReplacements} × ${fmtEUR0.format(battReplacementCost)}` : '–';
   document.getElementById('m-battreplace-sub').textContent = hasBattery
-    ? (battReplacements > 0 ? `aastatel ${Array.from({length: battReplacements}, (_, i) => (i+1)*battLife).join(', ')}, kokku ${fmtEUR0.format(battReplacements*battReplacementCost)}` : `aku (${battLife} a) kestab horisondi (${years} a) lõpuni`)
+    ? (battReplacements > 0 ? `aastatel ${Array.from({length: battReplacements}, (_, i) => (i+1)*battLife).join(', ')}, kokku ${fmtEUR0.format(battReplacements*battReplacementCost)}; maht eluea lõpuks ${Math.round(Math.pow(1-battFade, battLife-1)*100)}%` : `aku (${battLife} a) kestab horisondi (${years} a) lõpuni`)
     : 'aku kaasamata';
-  document.getElementById('m-roinet').textContent = (roiNet >= 0 ? '+' : '') + roiNet.toFixed(1) + ' %/a';
-  document.getElementById('m-roinet').className = 'value ' + (roiNet >= 0 ? 'good' : 'warn');
-  document.getElementById('m-roinet-sub').textContent = `keskm. sääst ${fmtEUR0.format(avgAnnualSavings)}/a − amortisatsioon ${fmtEUR0.format(annualDepreciation)}/a = ${fmtEUR0.format(netAnnualReturn)}/a`;
+  document.getElementById('m-irr').textContent = irr === null ? '–' : (irr*100).toFixed(1) + ' %';
+  document.getElementById('m-irr').className = 'value ' + (irr !== null && irr >= discount ? 'good' : 'warn');
+  document.getElementById('m-irr-sub').textContent = irr === null ? 'rahavoog ei tasu end horisondil ära' : (irr >= discount ? `ületab diskontomäära (${(discount*100).toFixed(1)} %)` : `alla diskontomäära (${(discount*100).toFixed(1)} %)`);
 
   document.getElementById('m-neighbor-frozen').textContent = fmtEUR0.format(neighborPaymentFrozen);
   document.getElementById('m-neighbor-floating').textContent = fmtEUR0.format(neighborPaymentFloating);
@@ -1756,8 +1670,9 @@ function renderMonthDetail(){
 
   const battCap = hasBattery ? battSize : 0;
   const powerCapKw = +mainFuseEl.value;
-  const simWd = simulateRepresentativeDay(prodA_h, prodB_h, cons_wd, PRICE_SHAPE_WEEKDAY[m], ISDAY_WEEKDAY, networkDay, networkNight, flatFees, VAT, 0, 0, 0, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
-  const simWe = simulateRepresentativeDay(prodA_h, prodB_h, cons_we, PRICE_SHAPE_WEEKEND[m], ISDAY_WEEKEND, networkDay, networkNight, flatFees, VAT, simWd.socSolarEnd, simWd.socGridEnd, simWd.socGridCostEnd, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
+  const pricesMd = getScaledPrices(+els.energyDay.value, +els.energyNight.value)[m];
+  const PWD = pricesMd.wd, PWE = pricesMd.we;
+  const {simWd, simWe} = simulateMonthPair(prodA_h, prodB_h, cons_wd, cons_we, PWD, PWE, networkDay, networkNight, flatFees, VAT, battCap, roundtripEff, allowGridCharge, allowExport, inverterAc, powerCapKw);
 
   const labels = [], prodSeries = [], consSeries = [], boughtSeries = [], exportSeries = [];
   for (let h=0; h<24; h++){
@@ -1821,26 +1736,38 @@ function renderMonthDetail(){
   }
   drawBatteryDetailChart(battLabels, chargedSeries, dischargedSeries, consumedSeries, soldSeries);
 
-  let battCharged=0, battConsumed=0, battSold=0;
-  let chargingCostEur=0, loadBenefitEur=0, exportRevenueEur=0;
+  let battChargedSolar=0, battChargedGrid=0, battConsumed=0, battSold=0;
+  let chargingCostEur=0, loadBenefitEur=0, exportRevenueEur=0;   // grid-origin (arbitrage) leg
+  let solarStoreLoadEur=0, solarStoreExportEur=0;                // solar-origin (storage) leg
   for (let h=0; h<24; h++){
-    const bvWd = (PRICE_SHAPE_WEEKDAY[m][h] + (ISDAY_WEEKDAY[h]?networkDay:networkNight) + flatFees)*(1+VAT);
-    const bvWe = (PRICE_SHAPE_WEEKEND[m][h] + networkNight + flatFees)*(1+VAT); // weekend = always night tariff
-    battCharged += (simWd.solarCharged[h]+simWd.gridCharged[h])*wdCount + (simWe.solarCharged[h]+simWe.gridCharged[h])*weCount;
+    const bvWd = (PWD[h] + (ISDAY_WEEKDAY[h]?networkDay:networkNight) + flatFees)*(1+VAT);
+    const bvWe = (PWE[h] + networkNight + flatFees)*(1+VAT); // weekend = always night tariff
+    battChargedSolar += simWd.solarCharged[h]*wdCount + simWe.solarCharged[h]*weCount;
+    battChargedGrid += simWd.gridCharged[h]*wdCount + simWe.gridCharged[h]*weCount;
     battConsumed += (simWd.dischargeFromSolar[h]+simWd.dischargeFromGrid[h])*wdCount + (simWe.dischargeFromSolar[h]+simWe.dischargeFromGrid[h])*weCount;
     battSold += (simWd.exportFromSolar[h]+simWd.exportFromGrid[h])*wdCount + (simWe.exportFromSolar[h]+simWe.exportFromGrid[h])*weCount;
     chargingCostEur += simWd.gridCharged[h]*wdCount*bvWd + simWe.gridCharged[h]*weCount*bvWe;
     loadBenefitEur += simWd.dischargeFromGrid[h]*wdCount*bvWd + simWe.dischargeFromGrid[h]*weCount*bvWe;
-    exportRevenueEur += simWd.exportFromGrid[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h] + simWe.exportFromGrid[h]*weCount*PRICE_SHAPE_WEEKEND[m][h];
+    exportRevenueEur += simWd.exportFromGrid[h]*wdCount*PWD[h] + simWe.exportFromGrid[h]*weCount*PWE[h];
+    // Stored solar is free to acquire; its value is the full retail purchase it later avoids,
+    // or the spot price it later fetches — the battery's main job in summer.
+    solarStoreLoadEur += simWd.dischargeFromSolar[h]*wdCount*bvWd + simWe.dischargeFromSolar[h]*weCount*bvWe;
+    solarStoreExportEur += simWd.exportFromSolar[h]*wdCount*PWD[h] + simWe.exportFromSolar[h]*weCount*PWE[h];
   }
+  const arbitrageNet = loadBenefitEur + exportRevenueEur - chargingCostEur;
+  const storageNet = solarStoreLoadEur + solarStoreExportEur;
+  const sgn = v => (v>=0?'+':'') + fmtEUR0.format(v);
   const battRows = [
-    ['Laetud kokku', fmtNum.format(Math.round(battCharged))+' kWh'],
-    ['Tarbitud akust', fmtNum.format(Math.round(battConsumed))+' kWh'],
-    ['Müüdud akust võrku', fmtNum.format(Math.round(battSold))+' kWh'],
-    ['— Laadimiskulu (võrgust ostetud osa)', '-'+fmtEUR0.format(chargingCostEur)],
-    ['— Tarbimise katte väärtus (väldib täishinda)', '+'+fmtEUR0.format(loadBenefitEur)],
-    ['— Ekspordi tulu', '+'+fmtEUR0.format(exportRevenueEur)],
-    ['Neto rahavoog arbitraažist', (loadBenefitEur+exportRevenueEur-chargingCostEur>=0?'+':'')+fmtEUR0.format(loadBenefitEur+exportRevenueEur-chargingCostEur)],
+    ['Laetud kokku', fmtNum.format(Math.round(battChargedSolar+battChargedGrid))+' kWh (päikesest '+fmtNum.format(Math.round(battChargedSolar))+', võrgust '+fmtNum.format(Math.round(battChargedGrid))+')'],
+    ['— Tarbitud akust', fmtNum.format(Math.round(battConsumed))+' kWh'],
+    ['— Müüdud akust võrku', fmtNum.format(Math.round(battSold))+' kWh'],
+    ['— Ringtõhususe kaod', fmtNum.format(Math.round(battChargedSolar+battChargedGrid-battConsumed-battSold))+' kWh'],
+    ['Päikese salvestamise väärtus (tasuta laeng → väldib ostu / müüakse hiljem)', sgn(storageNet)],
+    ['— Laadimiskulu (võrgust ostetud osa, täishinnaga)', '-'+fmtEUR0.format(chargingCostEur)],
+    ['— Tarbimise katte väärtus (võrgust laetuga, väldib täishinda)', '+'+fmtEUR0.format(loadBenefitEur)],
+    ['— Ekspordi tulu (võrgust laetuga, börsihind)', '+'+fmtEUR0.format(exportRevenueEur)],
+    ['Neto rahavoog arbitraažist', sgn(arbitrageNet)],
+    ['Aku kogukasu kuus', sgn(storageNet + arbitrageNet)],
   ];
   document.getElementById('batteryDetailTableBody').innerHTML = battRows.map(([label,val]) =>
     `<tr style="border-bottom:1px solid var(--line);"><td style="padding:.5rem 0;">${label}</td><td style="text-align:right; padding:.5rem 0; font-weight:600; color:var(--elenger-blue-dark);">${val}</td></tr>`
@@ -1922,6 +1849,16 @@ function drawMonthDetailChart(labels, prod, cons, bought, exportArr){
   });
 }
 
+// Dragging the size slider keeps the price honest: whole modules only, and the €/kWh is rebuilt
+// from the module+control-box prices for that module count — unless a custom price was chosen.
+els.battsize.addEventListener('input', () => {
+  const n = Math.max(1, Math.round((+els.battsize.value) / DEYE_MODULE_KWH));
+  els.battsize.value = (n*DEYE_MODULE_KWH).toFixed(2);
+  if (!isNaN(parseInt(battModulesEl.value, 10))){
+    battModulesEl.value = String(n);
+    els.battcost.value = ((n*DEYE_MODULE_EUR + DEYE_CONTROL_BOX_EUR)/(n*DEYE_MODULE_KWH)).toFixed(2);
+  }
+});
 ids.forEach(id => els[id].addEventListener('input', calculate));
 hasBatteryEl.addEventListener('change', calculate);
 allowGridChargeEl.addEventListener('change', calculate);
