@@ -559,6 +559,22 @@
           <input type="range" id="discount" min="0" max="10" step="0.5" value="4">
         </div>
       </div>
+
+      <hr class="section-divider">
+      <p class="subtle-h">Eluiga ja amortisatsioon</p>
+      <div class="row2">
+        <div class="field">
+          <label>Paneelide eluiga <span class="val" id="v-panelLife">25 a</span></label>
+          <input type="range" id="panelLife" min="15" max="35" step="1" value="25">
+        </div>
+        <div class="field">
+          <label>Aku eluiga <span class="val" id="v-battLife">10 a</span></label>
+          <input type="range" id="battLife" min="5" max="20" step="1" value="10">
+        </div>
+      </div>
+      <p class="helptext">
+        <b>Paneelide eluiga</b> määrab kogu arvutuse horisondi — tasuvusaeg, rahavoog ja NPV arvutatakse selle aastate arvu peale (inverter ja ülejäänud ühekordsed kulud eeldatakse kestvat sama kaua). <b>Aku eluiga</b> on tavaliselt lühem: kui see on paneelide omast lühem, lisatakse rahavoogu iga aku eluea lõpus <b>uue aku ostukulu</b> (tänase hinnaga — akuhinnad on seni langenud, nii et see on konservatiivne eeldus) — see teeb tasuvuskõverasse nähtava languse ja vähendab NPV-d. Eraldi näidatakse ka <b>lineaarset amortisatsiooni</b> (investeering jagatud elueaga), mis on raamatupidamislik viis sama kulumise väljendamiseks aasta kohta, ja <b>puhastootlust pärast amortisatsiooni</b> — kui palju investeering keskmiselt aastas päriselt teenib, kui seadmete kulumine on maha arvatud.
+      </p>
     </div>
 
     <div>
@@ -579,9 +595,27 @@
           <div class="sub">investeering vs kumulatiivne sääst</div>
         </div>
         <div class="metric">
-          <div class="label">Nüüdispuhasväärtus (25a)</div>
+          <div class="label">Nüüdispuhasväärtus (<span id="m-npv-years">25</span>a)</div>
           <div class="value" id="m-npv">–</div>
           <div class="sub" id="m-npv-sub">diskonteeritud rahavoog</div>
+        </div>
+      </div>
+
+      <div class="metrics-secondary" style="grid-template-columns:repeat(3,1fr);">
+        <div class="metric-sm">
+          <div class="label">Amortisatsioon aastas</div>
+          <div class="value" id="m-depreciation">–</div>
+          <div class="sub" id="m-depreciation-sub">lineaarne: investeering ÷ eluiga</div>
+        </div>
+        <div class="metric-sm">
+          <div class="label">Aku vahetused horisondil</div>
+          <div class="value" id="m-battreplace">–</div>
+          <div class="sub" id="m-battreplace-sub">lisanduvad rahavoogu tänase akuhinnaga</div>
+        </div>
+        <div class="metric-sm">
+          <div class="label">Puhastootlus pärast amortisatsiooni</div>
+          <div class="value" id="m-roinet">–</div>
+          <div class="sub" id="m-roinet-sub">keskmine aastane sääst − amortisatsioon, % investeeringust</div>
         </div>
       </div>
 
@@ -601,7 +635,7 @@
       </div>
 
       <div class="card chart-card">
-        <h2>Kumulatiivne rahavoog 25 aasta jooksul</h2>
+        <h2>Kumulatiivne rahavoog <span id="cashflow-years">25</span> aasta jooksul</h2>
         <div style="position:relative;height:320px;">
           <canvas id="cashflowChart" role="img" aria-label="Joonis näitab kumulatiivset rahavoogu aastate lõikes, sh punkti, kus investeering tasub end ära"></canvas>
         </div>
@@ -704,7 +738,7 @@ const ids = ['consumptionDay','consumptionNight','myDayUse','myNightUse',
   'installCost','commissionCost','designCost','electricalCost','gridFee',
   'energyDay','energyNight','networkDay','networkNight',
   'excise','renewfee','securityfee','balancingfee',
-  'priceUplift','escalation','maintenance','degradation','discount'];
+  'priceUplift','escalation','maintenance','degradation','discount','panelLife','battLife'];
 const els = {};
 ids.forEach(id => els[id] = document.getElementById(id));
 const hasBatteryEl = document.getElementById('hasBattery');
@@ -1073,13 +1107,12 @@ function simulateRepresentativeDay(prodA_h, prodB_h, cons_h, priceShape_h, isDay
   // worth more than selling it (raw spot only, no fee/tax relief) — so serving your own deficit
   // is preferred over exporting whenever both are on the table, same as a rational owner would.
   const buyValue_h = priceShape_h.map((p,i)=>(p + (isDay_h[i]?networkDayRate:networkNightRate) + flatFees)*(1+VAT));
-  // Export is worth more than its raw spot price suggests: VAT here is charged on the NET grid
-  // position (gross bought minus gross sold) plus exchange fees, not on gross purchases alone, so
-  // every exported kWh reduces that net base and earns back its own 24% on top of the spot price —
-  // the full reduction in the bill is spot×(1+VAT), not spot alone. The network fee carries no such
-  // relief (it is charged on gross imports only, as buyValue_h already reflects), so only the spot
-  // portion is grossed up here.
-  const sellValue_h = priceShape_h.map(p=>p*(1+VAT));
+  // Export is paid at the raw spot price with no VAT at all — not grossed up, not netted against
+  // purchases. VAT only applies to electricity sold to the grid when the SELLER is themselves
+  // VAT-registered for that activity; a private individual who isn't registered adds no VAT to
+  // their export price (Estonian Tax and Customs Board guidance), so for a typical residential
+  // prosumer the export leg is simply spot, same as the raw price shape.
+  const sellValue_h = priceShape_h;
 
   // Charging still uses a simple heuristic to decide when to acquire stock at all — a cap on how
   // much gets bought in the first place, separate from the profitability check below that decides
@@ -1230,6 +1263,8 @@ function updateLabels(){
   document.getElementById('v-maintenance').textContent = fmtNum.format(+els.maintenance.value) + ' €/a';
   document.getElementById('v-degradation').textContent = els.degradation.value + ' %/a';
   document.getElementById('v-discount').textContent = els.discount.value + ' %';
+  document.getElementById('v-panelLife').textContent = els.panelLife.value + ' a';
+  document.getElementById('v-battLife').textContent = els.battLife.value + ' a';
 }
 
 function calculate(){
@@ -1343,7 +1378,16 @@ function calculate(){
   document.getElementById('sellPriceInfo').innerHTML =
     `<span>Keskmine realiseeritud müügihind: <b>${avgRealizedSellPrice.toFixed(4)} €/kWh</b></span><span>${hasBattery ? 'akuga, mitme tsükliga' : 'ilma akuta'} — igat tundi arvestatakse nüüd eraldi tegeliku hinnaga</span>`;
 
-  const years = 25;
+  // The analysis horizon is the panels' lifetime: once they are done, so is the project (inverter
+  // and the other one-off costs are assumed to last as long). The battery usually dies sooner, so
+  // at the end of every battery lifetime that falls inside the horizon a replacement is bought at
+  // today's battery price and charged to that year's cashflow — that is what makes a shorter
+  // battery life cost real money here, rather than being a mere accounting entry.
+  const years = Math.max(1, Math.round(+els.panelLife.value));
+  const battLife = Math.max(1, Math.round(+els.battLife.value));
+  const battReplacementCost = hasBattery ? battSize * battCostPerKwh : 0;
+  let battReplacements = 0;
+  let replacementCapexSoFar = 0;
   let cumulative = 0;
   let cumulativeDiscounted = -totalInvestment;
   const cumSeries = [-totalInvestment];
@@ -1409,15 +1453,12 @@ function calculate(){
           nightBoughtLoad_m += simWd.gridBought[h]*wdCount;
         }
         exported_m += simWd.exportArr[h]*wdCount;
-        // Export is credited to the bill at spot×(1+VAT), not bare spot: VAT here applies to the
-        // NET grid position (gross bought minus gross sold), so every exported kWh earns back its
-        // own 24% on top of the spot price via a lower net tax base, on top of the spot payment
-        // itself — the true reduction in the bill per kWh exported is spot×(1+VAT). Arbitrage
-        // grid-CHARGING, by contrast, costs the full retail rate (network fee for that hour's
-        // tariff period, flat fees, and VAT on the gross import) with no such relief, since network
-        // fees carry no netting and the import itself is what sets the (higher) gross side of the
-        // net-position calculation.
-        exportRevenue_m += simWd.exportArr[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h]*(1+VAT);
+        // Export is credited at the bare hourly spot price — no VAT either way, since a private,
+        // non-VAT-registered seller neither charges nor receives any on electricity sold to the
+        // grid. Arbitrage grid-CHARGING still costs the full retail rate (network fee for that
+        // hour's tariff period, flat fees, and VAT on the gross import), since none of that is
+        // relieved by anything sold later.
+        exportRevenue_m += simWd.exportArr[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h];
         chargingCost_m += simWd.gridCharged[h]*wdCount*(PRICE_SHAPE_WEEKDAY[m][h]+(ISDAY_WEEKDAY[h]?networkDay:networkNight)+flatFees)*(1+VAT);
 
         // Weekend hours are always night-tariff (ISDAY_WEEKEND is all-false).
@@ -1425,7 +1466,7 @@ function calculate(){
         nightShifted_m += offsetWe*weCount;
         nightBoughtLoad_m += simWe.gridBought[h]*weCount;
         exported_m += simWe.exportArr[h]*weCount;
-        exportRevenue_m += simWe.exportArr[h]*weCount*PRICE_SHAPE_WEEKEND[m][h]*(1+VAT);
+        exportRevenue_m += simWe.exportArr[h]*weCount*PRICE_SHAPE_WEEKEND[m][h];
         chargingCost_m += simWe.gridCharged[h]*weCount*(PRICE_SHAPE_WEEKEND[m][h]+networkNight+flatFees)*(1+VAT);
       }
 
@@ -1480,10 +1521,20 @@ function calculate(){
     cumulative += savings;
     cumulativeDiscounted += savings / Math.pow(1 + discount, y);
 
-    cumSeries.push(cumulative - totalInvestment);
+    // Battery replacement: due at the end of each battery lifetime, but not if it coincides with
+    // the end of the project itself — a battery that dies exactly when the panels do needs no
+    // successor. `cumulative` stays pure operating savings; capex is tracked separately so the
+    // depreciation metrics below can read the two apart.
+    if (hasBattery && battReplacementCost > 0 && y % battLife === 0 && y < years){
+      battReplacements += 1;
+      replacementCapexSoFar += battReplacementCost;
+      cumulativeDiscounted -= battReplacementCost / Math.pow(1 + discount, y);
+    }
+
+    cumSeries.push(cumulative - totalInvestment - replacementCapexSoFar);
     labels.push(y);
 
-    if (paybackYear === null && (cumulative - totalInvestment) >= 0){
+    if (paybackYear === null && (cumulative - totalInvestment - replacementCapexSoFar) >= 0){
       const prevCum = cumSeries[cumSeries.length - 2];
       const thisCum = cumSeries[cumSeries.length - 1];
       const frac = prevCum / (prevCum - thisCum);
@@ -1510,11 +1561,34 @@ function calculate(){
   document.getElementById('m-investment').textContent = fmtEUR0.format(totalInvestment);
   document.getElementById('m-investment-sub').textContent = `${pvSize.toFixed(1)} kWp paneelid (${pvSizeA}+${hasBlockB?pvSizeB:0} kWp) + ${inverterAc} kW inverter` + (hasBattery ? ` + ${battSize} kWh aku` : ' (aku kaasamata)') + ` + ${fmtEUR0.format(otherCosts)} muud kulud, 100% sinu oma`;
   document.getElementById('m-savings1').textContent = fmtEUR0.format(Math.max(year1Savings,0));
-  document.getElementById('m-payback').textContent = paybackYear ? paybackYear.toFixed(1) + ' aastat' : '> 25 aastat';
+  document.getElementById('m-payback').textContent = paybackYear ? paybackYear.toFixed(1) + ' aastat' : `> ${years} aastat`;
   document.getElementById('m-payback').className = 'value ' + (paybackYear && paybackYear <= 15 ? 'good' : (paybackYear ? '' : 'warn'));
+  document.getElementById('m-npv-years').textContent = years;
+  document.getElementById('cashflow-years').textContent = years;
   document.getElementById('m-npv').textContent = fmtEUR0.format(npv);
   document.getElementById('m-npv').className = 'value ' + (npv >= 0 ? 'good' : 'warn');
-  document.getElementById('m-npv-sub').textContent = npv >= 0 ? 'investeering loob väärtust' : 'investeering ei tasu end diskonteeritult ära';
+  document.getElementById('m-npv-sub').textContent = (npv >= 0 ? 'investeering loob väärtust' : 'investeering ei tasu end diskonteeritult ära') + (battReplacements > 0 ? `, sh ${battReplacements} aku vahetus${battReplacements>1?'t':''}` : '');
+
+  // Straight-line depreciation: the accounting view of the same wear — each asset's cost spread
+  // evenly over its own lifetime. The project-life assets (panels, inverter, one-off costs) go
+  // over the panel lifetime; the battery over its own, shorter one. Net return after depreciation
+  // is then the average operating saving per year over the horizon (escalation included) minus
+  // that wear, expressed as a yearly % of the money put in — what the investment really earns
+  // once the equipment using itself up is paid for.
+  const projectLifeCapex = pvSizeA * pvCostA + pvSizeB * pvCostB + inverterCost + otherCosts;
+  const annualDepreciation = projectLifeCapex / years + (hasBattery ? battSize * battCostPerKwh / battLife : 0);
+  const avgAnnualSavings = cumulative / years;
+  const netAnnualReturn = avgAnnualSavings - annualDepreciation;
+  const roiNet = totalInvestment > 0 ? netAnnualReturn / totalInvestment * 100 : 0;
+  document.getElementById('m-depreciation').textContent = fmtEUR0.format(annualDepreciation) + '/a';
+  document.getElementById('m-depreciation-sub').textContent = `paneelid+inverter+muu ÷ ${years} a` + (hasBattery ? ` + aku ÷ ${battLife} a` : '');
+  document.getElementById('m-battreplace').textContent = hasBattery ? `${battReplacements} × ${fmtEUR0.format(battReplacementCost)}` : '–';
+  document.getElementById('m-battreplace-sub').textContent = hasBattery
+    ? (battReplacements > 0 ? `aastatel ${Array.from({length: battReplacements}, (_, i) => (i+1)*battLife).join(', ')}, kokku ${fmtEUR0.format(battReplacements*battReplacementCost)}` : `aku (${battLife} a) kestab horisondi (${years} a) lõpuni`)
+    : 'aku kaasamata';
+  document.getElementById('m-roinet').textContent = (roiNet >= 0 ? '+' : '') + roiNet.toFixed(1) + ' %/a';
+  document.getElementById('m-roinet').className = 'value ' + (roiNet >= 0 ? 'good' : 'warn');
+  document.getElementById('m-roinet-sub').textContent = `keskm. sääst ${fmtEUR0.format(avgAnnualSavings)}/a − amortisatsioon ${fmtEUR0.format(annualDepreciation)}/a = ${fmtEUR0.format(netAnnualReturn)}/a`;
 
   document.getElementById('m-neighbor-frozen').textContent = fmtEUR0.format(neighborPaymentFrozen);
   document.getElementById('m-neighbor-floating').textContent = fmtEUR0.format(neighborPaymentFloating);
@@ -1757,7 +1831,7 @@ function renderMonthDetail(){
     battSold += (simWd.exportFromSolar[h]+simWd.exportFromGrid[h])*wdCount + (simWe.exportFromSolar[h]+simWe.exportFromGrid[h])*weCount;
     chargingCostEur += simWd.gridCharged[h]*wdCount*bvWd + simWe.gridCharged[h]*weCount*bvWe;
     loadBenefitEur += simWd.dischargeFromGrid[h]*wdCount*bvWd + simWe.dischargeFromGrid[h]*weCount*bvWe;
-    exportRevenueEur += (simWd.exportFromGrid[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h] + simWe.exportFromGrid[h]*weCount*PRICE_SHAPE_WEEKEND[m][h])*(1+VAT);
+    exportRevenueEur += simWd.exportFromGrid[h]*wdCount*PRICE_SHAPE_WEEKDAY[m][h] + simWe.exportFromGrid[h]*weCount*PRICE_SHAPE_WEEKEND[m][h];
   }
   const battRows = [
     ['Laetud kokku', fmtNum.format(Math.round(battCharged))+' kWh'],
